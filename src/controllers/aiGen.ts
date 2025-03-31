@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { generateResponse } from '../services/aiGen';
+import supabase from '../config/supabase';
 
 interface GenerationRequest {
     model: string;
@@ -29,6 +30,21 @@ export const generateContent = async (req: Request, res: Response): Promise<any>
             model,
             systemInstruction || ''
         );
+
+        // Record generation in Supabase
+        try {
+            await supabase
+                .from('generations')
+                .insert({
+                    model,
+                    prompt,
+                    systemInstruction: systemInstruction || '',
+                    output: generatedContent
+                });
+        } catch (dbError) {
+            console.error('Error recording generation:', dbError);
+            // Continue execution even if DB insert fails
+        }
 
         return res.status(200).json({
             success: true,

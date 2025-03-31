@@ -1,6 +1,3 @@
-import request from 'supertest';
-import express, { Express } from 'express';
-
 // Mock express and routes
 jest.mock('express', () => {
     const mockApp = {
@@ -21,13 +18,15 @@ jest.mock('dotenv', () => ({
 
 describe('Server', () => {
     let mockApp: any;
+    let mockExpress: any;
 
     beforeEach(() => {
         // Clear module cache to reset the mocks between tests
         jest.resetModules();
 
-        // Reset express mock
-        mockApp = (express() as unknown) as Express;
+        // Get reference to mocked express
+        mockExpress = require('express');
+        mockApp = mockExpress();
     });
 
     it('should initialize the server correctly', async () => {
@@ -38,7 +37,7 @@ describe('Server', () => {
         await import('../server');
 
         // Assert middleware is set up
-        expect(express.json).toHaveBeenCalled();
+        expect(mockExpress.json).toHaveBeenCalled();
         expect(mockApp.use).toHaveBeenCalledWith('json-middleware');
 
         // Assert routes are set up
