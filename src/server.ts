@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from 'express';
 import characterRoutes from './routes/characters';
+import generationRoutes from './routes/aiGen';
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -16,8 +17,9 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });
 
-// Post routes
+// API routes
 app.use('/characters', characterRoutes);
+app.use('/generations', generationRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
