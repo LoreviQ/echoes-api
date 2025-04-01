@@ -11,7 +11,7 @@ jest.mock('express', () => {
 });
 
 jest.mock('../routes/characters', () => 'mock-characters-routes');
-jest.mock('../routes/aiGen', () => 'mock-ai-gen-routes');
+jest.mock('../routes/ai_generation', () => 'mock-ai-generation-routes');
 jest.mock('dotenv', () => ({
     config: jest.fn()
 }));
@@ -42,8 +42,8 @@ describe('Server', () => {
 
         // Assert routes are set up
         expect(mockApp.get).toHaveBeenCalledWith('/', expect.any(Function));
-        expect(mockApp.use).toHaveBeenCalledWith('/characters', 'mock-characters-routes');
-        expect(mockApp.use).toHaveBeenCalledWith('/generations', 'mock-ai-gen-routes');
+        expect(mockApp.use).toHaveBeenCalledWith('/v1/characters', 'mock-characters-routes');
+        expect(mockApp.use).toHaveBeenCalledWith('/v1/generations', 'mock-ai-generation-routes');
 
         // Assert server is started
         expect(mockApp.listen).toHaveBeenCalledWith(4000, expect.any(Function));
@@ -57,6 +57,6 @@ describe('Server', () => {
         await import('../server');
 
         // Assert server uses default port
-        expect(mockApp.listen).toHaveBeenCalledWith(3000, expect.any(Function));
+        expect(mockApp.listen).toHaveBeenCalledWith(3001, expect.any(Function));
     });
 }); 
