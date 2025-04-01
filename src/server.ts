@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app: Express = express();
-const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3001;
 
 // Middleware
 app.use(express.json());
@@ -18,8 +18,8 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // API routes
-app.use('/characters', characterRoutes);
-app.use('/generations', generationRoutes);
+app.use('/v1/characters', characterRoutes);
+app.use('/v1/generations', generationRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
