@@ -26,7 +26,8 @@ describe('AI Generation Routes', () => {
                     content: {
                         name: "Test Character",
                         gender: "female",
-                        bio: "Test biography"
+                        bio: "Test biography",
+                        nsfw: false
                     }
                 });
             });
@@ -43,7 +44,8 @@ describe('AI Generation Routes', () => {
                 content: {
                     name: "Test Character",
                     gender: "female",
-                    bio: "Test biography"
+                    bio: "Test biography",
+                    nsfw: false
                 }
             });
             expect(mockGenerateCharacter).toHaveBeenCalledTimes(1);

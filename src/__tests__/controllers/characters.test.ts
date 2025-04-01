@@ -54,7 +54,8 @@ describe('Character Generation Controller', () => {
             const mockGeneratedCharacter = {
                 name: "Test Character",
                 gender: "female",
-                bio: "Test biography"
+                bio: "Test biography",
+                nsfw: false
             };
 
             const mockJsonResponse = JSON.stringify(mockGeneratedCharacter);
