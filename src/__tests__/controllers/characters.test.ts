@@ -54,7 +54,8 @@ describe('Character Generation Controller', () => {
             const mockGeneratedCharacter = {
                 name: "Test Character",
                 gender: "female",
-                bio: "Test biography",
+                description: "Test character description spanning multiple paragraphs",
+                bio: "Adventurous explorer seeking new horizons | Coffee lover | Dog parent 🐕",
                 nsfw: false
             };
 
