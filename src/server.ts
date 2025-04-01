@@ -12,6 +12,12 @@ const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3001;
 // Middleware
 app.use(express.json());
 
+// Request logging middleware
+app.use((req: Request, res: Response, next) => {
+    console.log(`${req.method} request at ${req.url}`);
+    next();
+});
+
 // Routes
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
