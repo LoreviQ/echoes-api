@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { generateCharacter } from '../controllers/aiGen';
+import { generateCharacter } from '../controllers/characters';
 
 const router: Router = express.Router();
 

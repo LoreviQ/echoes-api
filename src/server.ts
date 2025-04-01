@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from 'express';
 import characterRoutes from './routes/characters';
-import generationRoutes from './routes/aiGen';
+import generationRoutes from './routes/ai_generation';
 import dotenv from 'dotenv';
 
 // Load environment variables

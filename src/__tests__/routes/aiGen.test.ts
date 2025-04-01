@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
-import aiGenRouter from '../../routes/aiGen';
-import * as aiGenController from '../../controllers/aiGen';
+import aiGenRouter from '../../routes/ai_generation';
+import * as aiGenController from '../../controllers/characters';
 
 // Mock the controllers
 jest.mock('../../controllers/aiGen');
