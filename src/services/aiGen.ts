@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import dotenv from 'dotenv';
+import { recordGeneration } from './supabase';
 
 // Load environment variables
 dotenv.config();
@@ -13,17 +14,31 @@ const models_to_provider: Record<string, string> = {
 }
 
 // adapter pattern for different providers and models
-export async function generateResponse(prompt: string, model: string = "gemini-2.5-pro-exp-03-25", systemInstruction: string = "") {
+export async function generateResponse(prompt: string, model: string = "gemini-2.5-pro-exp-03-25", systemInstruction: string = "", type: string = "general") {
+    let generatedContent: string;
+
     switch (models_to_provider[model]) {
         case "google":
-            return googleGenerate(prompt, model, systemInstruction);
+            generatedContent = await googleGenerate(prompt, model, systemInstruction);
+            break;
         default:
             throw new Error(`Unsupported model: ${model}`);
     }
+
+    // Record generation in database
+    await recordGeneration({
+        model,
+        prompt,
+        systemInstruction: systemInstruction || '',
+        output: generatedContent,
+        type
+    });
+
+    return generatedContent;
 }
 
 // uses google genai to generate a response
-async function googleGenerate(prompt: string, model: string, systemInstruction: string = "") {
+async function googleGenerate(prompt: string, model: string, systemInstruction: string = ""): Promise<string> {
     try {
         const response = await gemini_ai.models.generateContent({
             model: model,
@@ -32,7 +47,9 @@ async function googleGenerate(prompt: string, model: string, systemInstruction: 
                 systemInstruction: systemInstruction,
             },
         });
-        console.log("Generation successful");
+        if (!response.text) {
+            throw new Error("No response from Google GenAI");
+        }
         return response.text;
     } catch (error) {
         console.error("Error generating content:", error);
