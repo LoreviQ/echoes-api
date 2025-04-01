@@ -71,7 +71,6 @@ Do NOT include any introductory text, explanations, markdown formatting codes (l
             prompt,
             model,
             systemInstruction,
-            'character'
         );
 
         // Parse the generated content into our Character type

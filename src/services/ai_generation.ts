@@ -14,7 +14,7 @@ const models_to_provider: Record<string, string> = {
 }
 
 // adapter pattern for different providers and models
-export async function generateResponse(prompt: string, model: string = "gemini-2.5-pro-exp-03-25", systemInstruction: string = "", type: string = "general") {
+export async function generateResponse(prompt: string, model: string = "gemini-2.5-pro-exp-03-25", systemInstruction: string = "") {
     let generatedContent: string;
 
     switch (models_to_provider[model]) {
@@ -31,7 +31,6 @@ export async function generateResponse(prompt: string, model: string = "gemini-2
         prompt,
         systemInstruction: systemInstruction || '',
         output: generatedContent,
-        type
     });
 
     return generatedContent;

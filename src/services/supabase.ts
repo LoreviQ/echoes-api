@@ -5,15 +5,22 @@ interface GenerationRecord {
     prompt: string;
     systemInstruction: string;
     output: string;
-    type: string;
 }
 
 export async function recordGeneration(generation: GenerationRecord): Promise<void> {
     try {
-        await supabase
+        console.log("Recording generation:", generation);
+        const { data, error } = await supabase
             .from('generations')
             .insert(generation);
-    } catch (dbError) {
-        console.error('Error recording generation:', dbError);
+
+        if (error) {
+            throw error;
+        }
+
+        console.log("Generation recorded successfully:", data);
+    } catch (error) {
+        console.error('Error recording generation:', error);
+        throw error;
     }
 } 
