@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { generateCharacter } from '../../controllers/characters';
-import { generateResponse } from '../../services/ai_generation';
+import { generateResponse } from '../../services/text_generation';
 
 // Mock the AI generation service
 jest.mock('../../services/ai_generation', () => ({

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { generateResponse } from '../services/ai_generation';
+import { generateResponse } from '../services/text_generation';
+import { generateImage } from '../services/image_generation';
 import { CHARACTER_GENERATION_PROMPT, CHARACTER_SYSTEM_INSTRUCTION } from '../prompts/character';
 import { IMAGE_GENERATION_PROMPT, IMAGE_SYSTEM_INSTRUCTION } from '../prompts/image';
 import { Character } from '../types/character';
@@ -82,15 +83,26 @@ export const generateAvatar = async (req: Request, res: Response): Promise<any> 
         const character = req.body as Character;
         const model = "gemini-2.0-flash";
 
-        const generatedContent = await generateResponse(
+        // Generate image prompt using text generation
+        const imgGenPrompt = await generateResponse(
             IMAGE_GENERATION_PROMPT([character], "social media avatar"),
             model,
             IMAGE_SYSTEM_INSTRUCTION,
         );
 
+        // Use the generated prompt to create an image with Civitai and upload to Supabase
+        const imageUrl = await generateImage({
+            prompt: imgGenPrompt,
+            width: 512,
+            height: 512,
+        });
+
         return res.status(200).json({
             success: true,
-            content: JSON.parse(generatedContent)
+            content: {
+                prompt: imgGenPrompt,
+                imageUrl: imageUrl
+            }
         });
     } catch (error: any) {
         console.error('Error generating avatar:', error);
