@@ -27,8 +27,12 @@ export function convertMessageToJSON(
     username: string,
     character_name: string
 ) {
-    // Format the date as YYYY-MM-DD HH:mm:ss UTC
-    const formattedDate = message.created_at.toISOString()
+    // Format the date - handle both string and Date types
+    const formattedDate = typeof message.created_at === 'string'
+        ? message.created_at
+        : message.created_at instanceof Date
+            ? message.created_at.toISOString()
+            : new Date(message.created_at).toISOString();
 
     return {
         sender: message.sender_type === 'user' ? username : character_name,

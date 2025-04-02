@@ -1,8 +1,12 @@
 import { subscribeToTable } from '../config/supabase';
 import supabase from '../config/supabase';
-import { Message } from '../types/thread';
+import { Thread, Message } from '../types/thread';
+import { Character } from '../types/character';
+import { User } from '../types/user';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { MESSAGE_REPLY } from '../prompts/message';
+import { generateResponse } from './text_generation';
 
 export class MessageService {
     private messageChannel: RealtimeChannel | null = null;
@@ -74,7 +78,7 @@ export class MessageService {
             // Get thread details to know which character should respond
             const { data: thread, error } = await supabase
                 .from('threads')
-                .select('character_id')
+                .select('character_id, user_id')
                 .eq('id', userMessage.thread_id)
                 .single();
 
@@ -83,12 +87,52 @@ export class MessageService {
                 return;
             }
 
-            // For now, just create a simple response
-            // In a real implementation, you would call your AI generation service here
+            // Get user email from auth.users
+            const { data: userData, error: userError } = await supabase.auth
+                .admin.getUserById(thread.user_id);
+
+            if (userError || !userData || !userData.user) {
+                console.error('Error fetching user:', userError);
+                return;
+            }
+
+            const userEmail = userData.user.email;
+
+            // Get character details
+            const { data: character, error: characterError } = await supabase
+                .from('characters')
+                .select('name, gender, description, bio, nsfw')
+                .eq('id', thread.character_id)
+                .single();
+
+            if (characterError || !character) {
+                console.error('Error fetching character:', characterError);
+                return;
+            }
+
+            // Get message history
+            const { data: messageHistory, error: messageHistoryError } = await supabase
+                .from('messages')
+                .select('*')
+                .eq('thread_id', userMessage.thread_id);
+
+            if (messageHistoryError || !messageHistory) {
+                console.error('Error fetching message history:', messageHistoryError);
+                return;
+            }
+
+            // Generate character response
+            const generatedResponse = await generateResponse(
+                MESSAGE_REPLY.PROMPT(character, messageHistory, userEmail),
+                "gemini-2.0-flash",
+                MESSAGE_REPLY.SYSTEM
+            );
+
+            // Create and save the response
             const characterResponse: Omit<Message, 'id' | 'created_at'> = {
                 thread_id: userMessage.thread_id,
                 sender_type: 'character',
-                content: `Hello! This is an auto-response to: "${userMessage.content}"`
+                content: generatedResponse
             };
 
             // Save the character's response to the database
