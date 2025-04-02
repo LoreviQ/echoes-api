@@ -51,6 +51,7 @@ interface ImageGenerationParams {
     seed?: number;
     clipSkip?: number;
     additionalNetworks?: Record<string, { strength?: number; triggerWord?: string }>;
+    nsfw?: boolean;
 }
 
 /**
@@ -65,14 +66,20 @@ export async function generateImage(params: ImageGenerationParams): Promise<stri
 
     try {
         // Add quality tags to the beginning and end of the prompt
-        const enhancedPrompt = IMAGE_GENERATION_CONFIG.QUALITY_TAGS_START + ', ' + params.prompt + ', ' + IMAGE_GENERATION_CONFIG.QUALITY_TAGS_END;
+        const enhancedPrompt = `${IMAGE_GENERATION_CONFIG.QUALITY_TAGS_START}, ${params.prompt.trim()}, ${IMAGE_GENERATION_CONFIG.QUALITY_TAGS_END}`;
+
+        // Build negative prompt - add NSFW tags to negative prompt if nsfw is false
+        let negativePrompt = params.negativePrompt || IMAGE_GENERATION_CONFIG.DEFAULT_NEGATIVE_PROMPT;
+        if ((params.nsfw ?? IMAGE_GENERATION_CONFIG.DEFAULT_NSFW) !== true) {
+            negativePrompt = `${IMAGE_GENERATION_CONFIG.NSFW_TAGS}, ${negativePrompt}`;
+        }
 
         // Create input with defaults from config
         const input = {
             model: params.model || IMAGE_GENERATION_CONFIG.DEFAULT_MODEL,
             params: {
                 prompt: enhancedPrompt,
-                negativePrompt: params.negativePrompt || IMAGE_GENERATION_CONFIG.DEFAULT_NEGATIVE_PROMPT,
+                negativePrompt: negativePrompt,
                 scheduler: params.scheduler || IMAGE_GENERATION_CONFIG.DEFAULT_SCHEDULER,
                 steps: params.steps || IMAGE_GENERATION_CONFIG.DEFAULT_STEPS,
                 cfgScale: params.cfgScale || IMAGE_GENERATION_CONFIG.DEFAULT_CFG_SCALE,
