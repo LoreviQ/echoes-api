@@ -1,9 +1,10 @@
 import { Character } from "../types/character";
 
-export const IMAGE_GENERATION_PROMPT = (characters: Character[], imageType: string): string => {
-    const inputData = { characters: characters };
-    const jsonString = JSON.stringify(inputData, null, 2);
-    return `Generate the Stable Diffusion prompt tags based on the following JSON data and image type. Adhere strictly to the format and ordering rules specified in the system instructions. Output only the comma-separated tag string.
+export const IMAGE_GENERATION = {
+    PROMPT: (characters: Character[], imageType: string): string => {
+        const inputData = { characters: characters };
+        const jsonString = JSON.stringify(inputData, null, 2);
+        return `Generate the Stable Diffusion prompt tags based on the following JSON data and image type. Adhere strictly to the format and ordering rules specified in the system instructions. Output only the comma-separated tag string.
 
 **Input JSON:**
 \`\`\`json
@@ -14,10 +15,10 @@ ${jsonString}
 ${imageType}
 
 **Output:**
-`; // The AI's response should start directly after "Output:"
+`;
+    },
 
-}
-export const IMAGE_SYSTEM_INSTRUCTION = `You are an AI assistant specialized in converting structured character data into comma-separated Stable Diffusion prompt tags.
+    SYSTEM: `You are an AI assistant specialized in converting structured character data into comma-separated Stable Diffusion prompt tags.
 Your goal is to generate a single string of tags suitable for an image generation API, based on the provided JSON character data and image type.
 
 **Input:**
@@ -41,4 +42,5 @@ Your goal is to generate a single string of tags suitable for an image generatio
 -   Be concise and use standard Stable Diffusion tag conventions.
 -   Infer reasonable details where necessary (e.g., if clothing isn't mentioned, you might omit or use a generic tag like \`casual clothes\` if context allows, but prioritize explicit info).
 -   Use the \`image_type\` to heavily influence composition, background, and style tags.
--   Focus solely on generating the tag string. Do not add commentary.`; 
+-   Focus solely on generating the tag string. Do not add commentary.`
+}; 

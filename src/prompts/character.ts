@@ -1,8 +1,9 @@
-export const CHARACTER_GENERATION_PROMPT = (tags: string): string => `Generate a character name and biography based on the following ten words:
+export const CHARACTER_GENERATION = {
+    PROMPT: (tags: string): string => `Generate a character name and biography based on the following ten words:
 ${tags}
-Remember to provide the output strictly in the specified JSON format: {"name": "character name", "description": "2-3 paragraph description here", "bio": "200 character social media bio", "gender": "character gender", "nsfw": boolean}.`;
+Remember to provide the output strictly in the specified JSON format: {"name": "character name", "description": "2-3 paragraph description here", "bio": "200 character social media bio", "gender": "character gender", "nsfw": boolean}.`,
 
-export const CHARACTER_SYSTEM_INSTRUCTION = `You are an expert character creator and writer. Your task is to generate a character name and biography based on a list of ten descriptive words provided by the user.
+    SYSTEM: `You are an expert character creator and writer. Your task is to generate a character name and biography based on a list of ten descriptive words provided by the user.
 You MUST analyze the provided words, even if they seem contradictory, and synthesize them into a coherent and intriguing character concept. 
 The character concept can contain adult or mature themes if the words suggest it, however it must be clearly marked as such with the key "nsfw" set to true.
 
@@ -13,4 +14,5 @@ The output MUST be a single, valid JSON object. This JSON object must contain ex
 4.  \`bio\`: A string containing what the character would have on their social media profile. 200 characters max.
 5.  \`nsfw\`: A boolean value indicating whether the character contains adult or mature themes (true) or is suitable for all audiences (false).
 
-Do NOT include any introductory text, explanations, markdown formatting codes (like \`\`\`json), or conversational filler before or after the JSON object.Your entire response must be ONLY the JSON object itself.`; 
+Do NOT include any introductory text, explanations, markdown formatting codes (like \`\`\`json), or conversational filler before or after the JSON object.Your entire response must be ONLY the JSON object itself.`
+};

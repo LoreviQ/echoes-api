@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { generateResponse } from '../services/text_generation';
 import { generateImage } from '../services/image_generation';
-import { CHARACTER_GENERATION_PROMPT, CHARACTER_SYSTEM_INSTRUCTION } from '../prompts/character';
-import { IMAGE_GENERATION_PROMPT, IMAGE_SYSTEM_INSTRUCTION } from '../prompts/image';
+import { CHARACTER_GENERATION } from '../prompts/character';
+import { IMAGE_GENERATION } from '../prompts/image';
 import { Character } from '../types/character';
 
 interface CharacterGenerationRequest {
@@ -54,9 +54,9 @@ export const generateCharacter = async (req: Request, res: Response): Promise<an
 
         // Generate the response
         const generatedContent = await generateResponse(
-            CHARACTER_GENERATION_PROMPT(tags),
+            CHARACTER_GENERATION.PROMPT(tags),
             model,
-            CHARACTER_SYSTEM_INSTRUCTION,
+            CHARACTER_GENERATION.SYSTEM,
         );
 
         // Parse the generated content into our Character type
@@ -85,9 +85,9 @@ export const generateAvatar = async (req: Request, res: Response): Promise<any> 
 
         // Generate image prompt using text generation
         const imgGenPrompt = await generateResponse(
-            IMAGE_GENERATION_PROMPT([character], "social media avatar"),
+            IMAGE_GENERATION.PROMPT([character], "social media avatar"),
             model,
-            IMAGE_SYSTEM_INSTRUCTION,
+            IMAGE_GENERATION.SYSTEM,
         );
 
         // Use the generated prompt to create an image with Civitai and upload to Supabase
@@ -123,9 +123,9 @@ export const generateBanner = async (req: Request, res: Response): Promise<any> 
 
         // Generate image prompt using text generation
         const imgGenPrompt = await generateResponse(
-            IMAGE_GENERATION_PROMPT([character], "banner image"),
+            IMAGE_GENERATION.PROMPT([character], "banner image"),
             model,
-            IMAGE_SYSTEM_INSTRUCTION,
+            IMAGE_GENERATION.SYSTEM,
         );
 
         // Use the generated prompt to create an image with specific dimensions
