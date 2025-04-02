@@ -9,9 +9,7 @@ export const POST_GENERATION = {
      * @returns The formatted prompt string.
      */
     PROMPT: (character: Character, events: Event[] = []): string => {
-        // Using JSON.stringify with indentation for better model readability
         const characterString = JSON.stringify(character, null, 2);
-        // Represent events clearly, handling the empty case and using JSON for structure
         const eventsString = events.length === 0 ? "No specific recent events provided." : JSON.stringify(events, null, 2);
 
         return `Generate a short social media post (max 280 characters) from the perspective of the following character, considering the recent events and using supported markdown where appropriate.
