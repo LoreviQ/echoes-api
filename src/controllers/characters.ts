@@ -50,7 +50,7 @@ export const generateCharacter = async (req: Request, res: Response): Promise<an
             return res.status(400).json({ error: 'Tags are required' });
         }
 
-        const model = "gemini-2.5-pro-exp-03-25";
+        const model = "gemini-2.0-flash";
 
         // Generate the response
         const generatedContent = await generateResponse(
