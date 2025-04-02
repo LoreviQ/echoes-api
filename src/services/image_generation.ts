@@ -13,6 +13,31 @@ const civitai = new Civitai({
     auth: process.env.CIVITAI_API_TOKEN || '',
 });
 
+/**
+ * Recursively drills down through nested job results to find the actual result object
+ * @param response The job response object that might be nested
+ * @returns The innermost result object containing the blob URL
+ */
+function findActualResult(response: any): any {
+    // If we have a result with a jobs array, drill into the first job
+    if (response.result?.jobs?.length > 0) {
+        return findActualResult(response.result.jobs[0]);
+    }
+
+    // If we have a result with blobUrl, we've found our target
+    if (response.result?.blobUrl) {
+        return response;
+    }
+
+    // If we don't have a nested structure but do have a result, return the current response
+    if (response.result) {
+        return response;
+    }
+
+    // If we don't have a result at all, return the response as is
+    return response;
+}
+
 interface ImageGenerationParams {
     prompt: string;
     bucketName: string;
@@ -61,20 +86,30 @@ export async function generateImage(params: ImageGenerationParams): Promise<stri
         // Start the image generation
         console.log('Generating image with Civitai API...');
         const response = await civitai.image.fromText(input, true); // Wait for job to complete
+        console.log('Civitai API response:', response);
 
         if (!response.jobs || response.jobs.length === 0) {
             throw new Error('No jobs returned from Civitai API');
         }
 
-        // Get the first job result
+        // Get the first job result and find the actual result through any nesting
         const job = response.jobs[0];
+        const actualJob = findActualResult(job);
 
-        if (!job.result?.blobUrl) {
+        if (!actualJob.result) {
+            throw new Error('No result available in job response');
+        }
+
+        if (actualJob.scheduled) {
+            throw new Error('Job is still scheduled and not completed');
+        }
+
+        if (!actualJob.result.available || !actualJob.result.blobUrl) {
             throw new Error('Image URL not available in job result');
         }
 
         // Download the image
-        const imageUrl = job.result.blobUrl;
+        const imageUrl = actualJob.result.blobUrl;
         const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(imageResponse.data);
 

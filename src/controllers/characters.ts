@@ -111,3 +111,42 @@ export const generateAvatar = async (req: Request, res: Response): Promise<any> 
         });
     }
 }
+
+/**
+ * Generate banner based on character
+ */
+export const generateBanner = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const character = req.body as Character;
+        const model = "gemini-2.0-flash";
+
+        // Generate image prompt using text generation
+        const imgGenPrompt = await generateResponse(
+            IMAGE_GENERATION_PROMPT([character], "banner image"),
+            model,
+            IMAGE_SYSTEM_INSTRUCTION,
+        );
+
+        // Use the generated prompt to create an image with specific dimensions
+        const imageUrl = await generateImage({
+            prompt: imgGenPrompt,
+            bucketName: "character-banners",
+            width: 900,
+            height: 300
+        });
+
+        return res.status(200).json({
+            success: true,
+            content: {
+                prompt: imgGenPrompt,
+                imageUrl: imageUrl
+            }
+        });
+    } catch (error: any) {
+        console.error('Error generating banner:', error);
+        return res.status(500).json({
+            success: false,
+            error: error.message || 'An unexpected error occurred'
+        });
+    }
+}
