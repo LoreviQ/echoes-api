@@ -93,8 +93,7 @@ export const generateAvatar = async (req: Request, res: Response): Promise<any> 
         // Use the generated prompt to create an image with Civitai and upload to Supabase
         const imageUrl = await generateImage({
             prompt: imgGenPrompt,
-            width: 512,
-            height: 512,
+            bucketName: "character-avatars"
         });
 
         return res.status(200).json({

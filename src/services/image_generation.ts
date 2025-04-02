@@ -15,6 +15,7 @@ const civitai = new Civitai({
 
 interface ImageGenerationParams {
     prompt: string;
+    bucketName: string;
     model?: string;
     negativePrompt?: string;
     scheduler?: Scheduler;
@@ -38,11 +39,14 @@ export async function generateImage(params: ImageGenerationParams): Promise<stri
     }
 
     try {
+        // Add quality tags to the beginning and end of the prompt
+        const enhancedPrompt = IMAGE_GENERATION_CONFIG.QUALITY_TAGS_START + ', ' + params.prompt + ', ' + IMAGE_GENERATION_CONFIG.QUALITY_TAGS_END;
+
         // Create input with defaults from config
         const input = {
             model: params.model || IMAGE_GENERATION_CONFIG.DEFAULT_MODEL,
             params: {
-                prompt: params.prompt,
+                prompt: enhancedPrompt,
                 negativePrompt: params.negativePrompt || IMAGE_GENERATION_CONFIG.DEFAULT_NEGATIVE_PROMPT,
                 scheduler: params.scheduler || IMAGE_GENERATION_CONFIG.DEFAULT_SCHEDULER,
                 steps: params.steps || IMAGE_GENERATION_CONFIG.DEFAULT_STEPS,
@@ -81,7 +85,7 @@ export async function generateImage(params: ImageGenerationParams): Promise<stri
         // Upload to Supabase storage using the extracted function
         return await uploadToStorage(
             imageBuffer,
-            IMAGE_GENERATION_CONFIG.BUCKET_NAME,
+            params.bucketName,
             filePath
         );
     } catch (error: any) {
