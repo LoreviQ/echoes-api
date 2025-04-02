@@ -36,8 +36,28 @@ export class MessageService {
     /**
      * Handle new message events from the subscription
      */
-    private async handleNewMessage(payload: RealtimePostgresChangesPayload<Message>) {
-        const message = payload.new as Message;
+    private async handleNewMessage(payload: RealtimePostgresChangesPayload<any>) {
+        // Ensure payload.new exists and convert the timestamptz to a proper Date object
+        if (!payload.new) {
+            console.error('Received payload with no new data');
+            return;
+        }
+
+        const payloadData = payload.new as {
+            id: string;
+            thread_id: string;
+            sender_type: 'user' | 'character';
+            content: string;
+            created_at: string;
+        };
+
+        const message: Message = {
+            id: payloadData.id,
+            thread_id: payloadData.thread_id,
+            sender_type: payloadData.sender_type,
+            content: payloadData.content,
+            created_at: new Date(payloadData.created_at)
+        };
 
         // Only respond to user messages
         if (message.sender_type === 'user') {

@@ -1,6 +1,6 @@
 import { Character } from "../types/character";
 import { Event } from "../types/events";
-import { Message } from "../types/thread";
+import { Message, convertMessageToJSON } from "../types/thread";
 
 export const MESSAGE_REPLY = {
     /**
@@ -10,7 +10,7 @@ export const MESSAGE_REPLY = {
      * @param events - An array of recent events relevant to the character.
      * @returns The formatted prompt string.
      */
-    PROMPT: (character: Character, messageHistory: Message[], events: Event[] = []): string => {
+    PROMPT: (character: Character, messageHistory: Message[], username: string = "User", events: Event[] = []): string => {
         // Ensure there's history to reply to
         if (messageHistory.length === 0) {
             return "Error: Cannot generate a reply without message history.";
@@ -18,11 +18,16 @@ export const MESSAGE_REPLY = {
         }
 
         const characterString = JSON.stringify(character, null, 2);
-        const historyString = JSON.stringify(messageHistory, null, 2);
+        // Convert messages to the simplified format
+        const formattedMessages = messageHistory.map(msg =>
+            convertMessageToJSON(msg, username, character.name)
+        );
+        const historyString = JSON.stringify(formattedMessages, null, 2);
         const eventsString = events.length === 0 ? "No specific recent external events provided." : JSON.stringify(events, null, 2);
         const replyingCharacterName = character.name || "this character"; // Use name if available
 
-        return `Generate a text message reply from the perspective of the character '${replyingCharacterName}', responding naturally to the *last message* in the provided history. Consider the character's personality, the full conversation context, and any recent events influencing their mood. Use supported markdown where appropriate for emphasis or structure.
+        return `Generate a text message reply from the perspective of the character '${replyingCharacterName}', responding naturally to the *last message* in the provided history. Consider the character's personality, the full conversation context (including timestamps and potential time gaps), and any recent events influencing their mood. Use supported markdown where appropriate for emphasis or structure.
+Use supported markdown where appropriate.
 
 **Character Details (Replying as):**
 \`\`\`json
@@ -53,7 +58,15 @@ Your task is to generate a text message *reply* from the perspective of a given 
 You will receive character details (JSON), the message history (JSON array), and a list of recent events (JSON array) that might influence the character's current state of mind.
 
 Analyze the character's personality, voice, interests, relationships (implied from history/details), and the provided events.
-Carefully read the *entire message history* to understand the context, tone, and relationship dynamics. Focus specifically on the *last message* to formulate a direct reply.
+Carefully read the *entire message history* to understand the context, tone, and relationship dynamics. 
+
+**Timestamp Awareness:**
+Pay close attention to the \`timestamp\` field (format: 'YYYY-MM-DD HH:mm:ss') associated with each message.
+*   **Calculate or estimate the time elapsed** between messages, especially the gap before the *last* message received.
+*   **Consider reacting realistically** to significant time gaps (e.g., many hours, days, weeks, or months) *if it aligns with the character's personality and the context*. For example, a character might comment ("Whoa, blast from the past!", "Sorry for the late reply...", "Been a while!"), or their tone might shift.
+*   Not every gap needs a comment, but the awareness should inform the reply's tone and relevance. A reply after 5 minutes is different from a reply after 3 weeks.
+
+Focus specifically on the *last message* to formulate a direct reply.
 Synthesize these elements to create a reply that is plausible, in-character, and relevant to the conversation flow.
 The reply should capture the character's unique voice and tone, including their typical use of language, slang, emojis, sentence structure, and capitalization.
 
