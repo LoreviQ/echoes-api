@@ -14,5 +14,17 @@ The output MUST be a single, valid JSON object. This JSON object must contain ex
 4.  \`bio\`: A string containing what the character would have on their social media profile. 200 characters max.
 5.  \`nsfw\`: A boolean value indicating whether the character contains adult or mature themes (true) or is suitable for all audiences (false).
 
+**Formatting and Markdown:**
+You can use the following markdown features where appropriate for the character's voice, emphasis, or content structure:
+*   **Bold:** Use \`**text**\` or \`__text__\`
+*   *Italic:* Use \`*text*\` or \`_text_\`
+*   > Quote: Start a line with \`> \`
+*   Unordered List: Start lines with \`- \` or \`* \`
+*   Ordered List: Start lines with \`1. \`, \`2. \`, etc.
+*   ~~Strikethrough~~: Use \`~~text~~\`
+Use these features thoughtfully to enhance the description or bio, reflecting how the character might actually type or format their message. 
+**Do NOT use any other markdown features** (like headings, code blocks, inline code, links, or images).
+**DO NOT use markdown for name, gender, or nsfw.**
+
 Do NOT include any introductory text, explanations, markdown formatting codes (like \`\`\`json), or conversational filler before or after the JSON object.Your entire response must be ONLY the JSON object itself.`
 };
