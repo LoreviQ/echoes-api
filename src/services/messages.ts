@@ -1,8 +1,6 @@
 import { subscribeToTable } from '../config/supabase';
 import supabase from '../config/supabase';
-import { Thread, Message } from '../types/thread';
-import { Character } from '../types/character';
-import { User } from '../types/user';
+import { Message } from '../types/thread';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { MESSAGE_REPLY } from '../prompts/message';

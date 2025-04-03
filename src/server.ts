@@ -3,13 +3,14 @@ import characterRoutes from './routes/characters';
 import generationRoutes from './routes/ai_generation';
 import dotenv from 'dotenv';
 import { messageService } from './services/messages';
+import { postService } from './services/posts';
 
 // Load environment variables
 dotenv.config();
 
 const app: Express = express();
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3001;
-const ENABLE_AUTO_RESPONSES: boolean = process.env.ENABLE_AUTO_RESPONSES === 'true';
+const ENABLE_BACKGROUND_SERVICES: boolean = process.env.ENABLE_BACKGROUND_SERVICES === 'true';
 
 // Middleware
 app.use(express.json());
@@ -34,10 +35,12 @@ app.listen(PORT, () => {
 
     // Only start background services if enabled via environment variable
     // Prevents multiple instances replying to the same messages
-    if (ENABLE_AUTO_RESPONSES) {
+    if (ENABLE_BACKGROUND_SERVICES) {
         console.log('Starting background services...');
         messageService.init();
         console.log('Message auto-response service is running');
+        postService.init();
+        console.log('Post generation service is running');
     } else {
         console.log('Auto-response services are disabled');
     }
@@ -46,16 +49,18 @@ app.listen(PORT, () => {
 // Handle graceful shutdown
 process.on('SIGINT', () => {
     console.log('Shutting down services...');
-    if (ENABLE_AUTO_RESPONSES) {
+    if (ENABLE_BACKGROUND_SERVICES) {
         messageService.cleanup();
+        postService.cleanup();
     }
     process.exit(0);
 });
 
 process.on('SIGTERM', () => {
     console.log('Shutting down services...');
-    if (ENABLE_AUTO_RESPONSES) {
+    if (ENABLE_BACKGROUND_SERVICES) {
         messageService.cleanup();
+        postService.cleanup();
     }
     process.exit(0);
 });
