@@ -1,10 +1,10 @@
-import { subscribeToTable } from '../config/supabase';
-import supabase from '../config/supabase';
-import { Message } from '../types/thread';
+import { subscribeToTable } from '../../config/supabase';
+import supabase from '../../config/supabase';
+import { Message } from '../../types/thread';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { MESSAGE_REPLY } from '../prompts/message';
-import { generateResponse } from './text_generation';
+import { MESSAGE_REPLY } from '../../prompts/message';
+import { generateResponse } from '../ai_generation/text';
 
 export class MessageService {
     private messageChannel: RealtimeChannel | null = null;

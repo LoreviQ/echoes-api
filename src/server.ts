@@ -2,8 +2,8 @@ import express, { Express, Request, Response } from 'express';
 import characterRoutes from './routes/characters';
 import generationRoutes from './routes/ai_generation';
 import dotenv from 'dotenv';
-import { messageService } from './services/messages';
-import { postService } from './services/posts';
+import { messageService } from './services/background/messages';
+import { postService } from './services/background/posts';
 
 // Load environment variables
 dotenv.config();

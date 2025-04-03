@@ -1,5 +1,5 @@
-import supabase from '../config/supabase';
-import { generatePostForCharacter } from './content_generation';
+import supabase from '../../config/supabase';
+import { generatePostForCharacter } from '../ai_generation/content';
 
 export class PostService {
     private postGenerationInterval: NodeJS.Timeout | null = null;

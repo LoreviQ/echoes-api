@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { generatePostForCharacter } from '../services/content_generation';
+import { generatePostForCharacter } from '../services/ai_generation/content';
 
 /**
  * Create a new post for a character

@@ -2,8 +2,8 @@ import { Civitai, Scheduler } from 'civitai';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { recordGeneration, uploadToStorage } from './supabase';
-import { IMAGE_GENERATION_CONFIG } from '../config/image_generation';
+import { uploadToStorage } from '../supabase';
+import { IMAGE_GENERATION_CONFIG } from '../../config/image_generation';
 
 // Load environment variables
 dotenv.config();
