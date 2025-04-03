@@ -4,6 +4,7 @@ import generationRoutes from './routes/ai_generation';
 import dotenv from 'dotenv';
 import { messageService } from './services/background/messages';
 import { postService } from './services/background/posts';
+import userRoutes from './routes/users';
 
 // Load environment variables
 dotenv.config();
@@ -29,6 +30,7 @@ app.get('/', (req: Request, res: Response) => {
 // API routes
 app.use('/v1/characters', characterRoutes);
 app.use('/v1/generations', generationRoutes);
+app.use('/v1/users', userRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
