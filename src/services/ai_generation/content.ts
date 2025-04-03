@@ -4,7 +4,9 @@ import { generateImage } from './image';
 import { POST_GENERATION } from '../../prompts/post';
 import { CHARACTER_GENERATION } from '../../prompts/character';
 import { IMAGE_GENERATION } from '../../prompts/image';
+import { MESSAGE_REPLY } from '../../prompts/message';
 import { Character } from '../../types/character';
+import { Message } from '../../types/thread';
 
 /**
  * Generates a post for a specific character
@@ -165,4 +167,71 @@ export const generateBannerForCharacter = async (character: Character) => {
         prompt: imgGenPrompt,
         imageUrl: imageUrl
     };
+};
+
+/**
+ * Generates a response message from a character to a user message
+ * @param threadId The thread ID the message belongs to
+ * @returns Generated character response content or null if an error occurred
+ */
+export const generateMessageResponse = async (threadId: string): Promise<string | null> => {
+    try {
+        // Get thread details to know which character should respond
+        const { data: thread, error } = await supabase
+            .from('threads')
+            .select('character_id, user_id')
+            .eq('id', threadId)
+            .single();
+
+        if (error || !thread) {
+            console.error('Error fetching thread:', error);
+            return null;
+        }
+
+        // Get user email from auth.users
+        const { data: userData, error: userError } = await supabase.auth
+            .admin.getUserById(thread.user_id);
+
+        if (userError || !userData || !userData.user) {
+            console.error('Error fetching user:', userError);
+            return null;
+        }
+
+        const userEmail = userData.user.email;
+
+        // Get character details
+        const { data: character, error: characterError } = await supabase
+            .from('characters')
+            .select('name, gender, description, bio, nsfw')
+            .eq('id', thread.character_id)
+            .single();
+
+        if (characterError || !character) {
+            console.error('Error fetching character:', characterError);
+            return null;
+        }
+
+        // Get message history
+        const { data: messageHistory, error: messageHistoryError } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('thread_id', threadId);
+
+        if (messageHistoryError || !messageHistory) {
+            console.error('Error fetching message history:', messageHistoryError);
+            return null;
+        }
+
+        // Generate character response
+        const generatedResponse = await generateResponse(
+            MESSAGE_REPLY.PROMPT(character, messageHistory, userEmail),
+            "gemini-2.0-flash",
+            MESSAGE_REPLY.SYSTEM
+        );
+
+        return generatedResponse;
+    } catch (error) {
+        console.error('Error generating message response:', error);
+        return null;
+    }
 }; 
