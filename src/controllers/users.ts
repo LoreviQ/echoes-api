@@ -1,21 +1,20 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { AuthenticatedRequest } from '../middleware/auth';
 
-export const getForYou = async (req: Request, res: Response): Promise<any> => {
+export const getForYou = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
     try {
-        const authHeader = req.headers.authorization;
+        const user = req.user;
 
-        if (!authHeader) {
-            console.log('No authorization header provided');
-            return res.status(401).json({ error: 'No authorization header provided' });
+        if (!user) {
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Extract token from Bearer format
-        const token = authHeader.split(' ')[1];
-        console.log('Extracted token:', token);
-
-        return res.status(200).json({ message: 'Token extracted and logged' });
+        return res.status(200).json({
+            message: 'Successfully authenticated',
+            user: user
+        });
     } catch (error) {
-        console.error('Error extracting token:', error);
+        console.error('Error in getForYou:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
