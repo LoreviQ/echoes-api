@@ -1,12 +1,20 @@
 import { Request, Response } from 'express';
 import { createPost } from '../../controllers/posts';
 import supabase from '../../config/supabase';
+import { generatePostForCharacter } from '../../services/ai_generation/content';
+
+// Mock generatePostForCharacter function
+jest.mock('../../services/ai_generation/content', () => ({
+    generatePostForCharacter: jest.fn()
+}));
 
 // Mock supabase
 jest.mock('../../config/supabase', () => ({
     from: jest.fn().mockReturnThis(),
     insert: jest.fn().mockReturnThis(),
-    select: jest.fn().mockReturnThis()
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    single: jest.fn().mockReturnThis()
 }));
 
 describe('Posts Controller', () => {
@@ -49,30 +57,20 @@ describe('Posts Controller', () => {
             // Setup
             mockRequest.params = { character_id: '123' };
 
-            const mockData = [{ id: 1, character_id: '123', content: 'hello world' }];
-            const mockFrom = supabase.from as jest.Mock;
-            const mockInsert = jest.fn().mockReturnThis();
-            const mockSelect = jest.fn().mockResolvedValue({ data: mockData, error: null });
+            const mockPost = { id: 1, character_id: '123', content: 'hello world' };
 
-            mockFrom.mockReturnValue({
-                insert: mockInsert,
-                select: mockSelect
-            });
+            // Mock the generatePostForCharacter function to return a post
+            (generatePostForCharacter as jest.Mock).mockResolvedValue(mockPost);
 
             // Execute
             await createPost(mockRequest as Request, mockResponse as Response);
 
             // Assert
-            expect(mockFrom).toHaveBeenCalledWith('posts');
-            expect(mockInsert).toHaveBeenCalledWith({
-                character_id: '123',
-                content: 'hello world'
-            });
-            expect(mockSelect).toHaveBeenCalled();
+            expect(generatePostForCharacter).toHaveBeenCalledWith('123');
             expect(mockResponse.status).toHaveBeenCalledWith(201);
             expect(responseObject).toEqual({
                 message: 'Post created successfully',
-                post: mockData[0]
+                post: mockPost
             });
         });
 
@@ -80,22 +78,15 @@ describe('Posts Controller', () => {
             // Setup
             mockRequest.params = { character_id: '123' };
 
-            const mockError = { message: 'Database error' };
-            const mockFrom = supabase.from as jest.Mock;
-            const mockInsert = jest.fn().mockReturnThis();
-            const mockSelect = jest.fn().mockResolvedValue({ data: null, error: mockError });
-
-            mockFrom.mockReturnValue({
-                insert: mockInsert,
-                select: mockSelect
-            });
+            // Mock the generatePostForCharacter function to return null (failed)
+            (generatePostForCharacter as jest.Mock).mockResolvedValue(null);
 
             // Execute
             await createPost(mockRequest as Request, mockResponse as Response);
 
             // Assert
             expect(mockResponse.status).toHaveBeenCalledWith(500);
-            expect(responseObject).toEqual({ error: 'Database error' });
+            expect(responseObject).toEqual({ error: 'Failed to create post' });
         });
     });
 }); 

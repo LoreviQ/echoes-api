@@ -42,7 +42,7 @@ app.listen(PORT, () => {
         postService.init();
         console.log('Post generation service is running');
     } else {
-        console.log('Auto-response services are disabled');
+        console.log('Background services are disabled');
     }
 });
 

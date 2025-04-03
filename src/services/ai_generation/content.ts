@@ -1,4 +1,4 @@
-import supabase from '../../config/supabase';
+import supabase, { SUPABASE_CONFIG } from '../../config/supabase';
 import { generateResponse } from './text';
 import { generateImage } from './image';
 import { POST_GENERATION } from '../../prompts/post';
@@ -6,7 +6,6 @@ import { CHARACTER_GENERATION } from '../../prompts/character';
 import { IMAGE_GENERATION } from '../../prompts/image';
 import { MESSAGE_REPLY } from '../../prompts/message';
 import { Character } from '../../types/character';
-import { Message } from '../../types/thread';
 
 /**
  * Generates a post for a specific character
@@ -129,7 +128,7 @@ export const generateAvatarForCharacter = async (character: Character) => {
     // Use the generated prompt to create an image with Civitai and upload to Supabase
     const imageUrl = await generateImage({
         prompt: imgGenPrompt,
-        bucketName: "character-avatars",
+        bucketName: SUPABASE_CONFIG.AVATAR_BUCKET,
         nsfw: character.nsfw
     });
 
@@ -157,7 +156,7 @@ export const generateBannerForCharacter = async (character: Character) => {
     // Use the generated prompt to create an image with specific dimensions
     const imageUrl = await generateImage({
         prompt: imgGenPrompt,
-        bucketName: "character-banners",
+        bucketName: SUPABASE_CONFIG.BANNER_BUCKET,
         width: 1200,
         height: 400,
         nsfw: character.nsfw

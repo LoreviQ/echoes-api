@@ -5,16 +5,22 @@ import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supab
 // Load environment variables
 dotenv.config();
 
-// Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_ADMIN_KEY || '';
+// Set Config
+export const SUPABASE_CONFIG = {
+    URL: process.env.SUPABASE_URL || '',
+    KEY: process.env.SUPABASE_ADMIN_KEY || '',
+    AVATAR_BUCKET: "character-avatars",
+    BANNER_BUCKET: "character-banners",
+}
 
-if (!supabaseUrl || !supabaseKey) {
+
+
+if (!SUPABASE_CONFIG.URL || !SUPABASE_CONFIG.KEY) {
     console.error('Missing Supabase credentials. Set SUPABASE_URL and SUPABASE_KEY environment variables.');
     process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
 
 type DatabaseChangeEvent = 'INSERT' | 'UPDATE' | 'DELETE' | '*';
 

@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { generateCharacter } from '../../controllers/characters';
-import { generateResponse } from '../../services/text_generation';
+import { generateResponse } from '../../services/ai_generation/text';
 
 // Mock the AI generation service
-jest.mock('../../services/ai_generation', () => ({
+jest.mock('../../services/ai_generation/text', () => ({
     generateResponse: jest.fn()
 }));
 
@@ -68,7 +68,7 @@ describe('Character Generation Controller', () => {
             // Assert
             expect(generateResponse).toHaveBeenCalledWith(
                 expect.stringContaining('brave strong intelligent'),
-                'gemini-2.5-pro-exp-03-25',
+                'gemini-2.0-flash',
                 expect.stringContaining('You are an expert character creator')
             );
             expect(mockResponse.status).toHaveBeenCalledWith(200);
