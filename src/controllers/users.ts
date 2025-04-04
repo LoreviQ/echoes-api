@@ -6,10 +6,6 @@ export const getForYou = async (req: AuthenticatedRequest, res: Response): Promi
     try {
         const user = req.user;
 
-        if (!user) {
-            return res.status(401).json({ error: 'User not authenticated' });
-        }
-
         const content = await fetchForYou(user);
 
         return res.status(200).json(content);

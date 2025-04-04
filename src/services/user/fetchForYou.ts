@@ -4,7 +4,7 @@ import { ContentType } from '../../types/content';
 
 // Fetch posts for the user
 // Currently simple, but will be improved later
-export const fetchForYou = async (user: User) => {
+export const fetchForYou = async (user: User | null | undefined) => {
     // Fetch posts
     const { data: posts, error: postsError } = await supabase
         .from('posts')
