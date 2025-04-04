@@ -4,7 +4,7 @@ import { optionalAuth } from '../middleware/auth';
 
 const router: Router = express.Router();
 
-// GET /users/foryou - Protected route
-router.get('/foryou', optionalAuth, getForYou);
+// POST /users/foryou
+router.post('/foryou', optionalAuth, getForYou);
 
 export default router; 
