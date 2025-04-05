@@ -16,7 +16,7 @@ export const SUPABASE_CONFIG = {
 
 
 if (!SUPABASE_CONFIG.URL || !SUPABASE_CONFIG.KEY) {
-    console.error('Missing Supabase credentials. Set SUPABASE_URL and SUPABASE_KEY environment variables.');
+    console.error('Missing Supabase credentials. Set SUPABASE_URL and SUPABASE_ADMIN_KEY environment variables.');
     process.exit(1);
 }
 
