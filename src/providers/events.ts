@@ -4,6 +4,5 @@
  * @returns A promise containing the events as a JSON string and any error that occurred.
  */
 export async function eventsProvider(character_id: string): Promise<{ events: string | null, error: any }> {
-    const events = "No recentevents provided."
-    return { events, error: null };
+    return { events: null, error: new Error("Not implemented") };
 }

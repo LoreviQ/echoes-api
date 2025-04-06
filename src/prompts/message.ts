@@ -23,18 +23,25 @@ export const MESSAGE_REPLY = {
             return { prompt: null, error: threadError };
         }
 
+        const { character, error: characterDetailsError } = await characterDetailsProvider(thread.character_id);
+        const { messageHistory, error: messageHistoryError } = await messageHistoryProvider(thread);
+        const { events, error: recentEventsError } = await eventsProvider(thread.character_id);
+
         const prompt = `
 Generate a text message reply from the perspective of the character, responding naturally to the *last message* in the provided history. Consider the character's personality, the full conversation context (including timestamps and potential time gaps), and any recent events influencing their mood. Use supported markdown where appropriate for emphasis or structure.
 Use supported markdown where appropriate.
 
-**Character Details (Replying as):**
-${characterDetailsProvider(thread.character_id)}
+${!characterDetailsError ? `**Character Details (Replying as):**
+${character}
+` : ""}
 
-**Message History (Oldest to Newest):**
-${messageHistoryProvider(thread)}
+${!messageHistoryError ? `**Message History (Oldest to Newest):**
+${messageHistory}
+` : ""}
 
-**Recent Events (Could influence mood/reply):**
-${eventsProvider(thread.character_id)}
+${!recentEventsError ? `**Recent Events (Could influence mood/reply):**
+${events}
+` : ""}
 
 Remember to write ONLY the reply message content itself. Match the character's voice and personality. Keep it suitable for a text conversation (usually concise, but longer rants are okay if in character). Use only the specified markdown syntax.
 

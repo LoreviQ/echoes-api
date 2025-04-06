@@ -18,7 +18,7 @@ export const generatePostForCharacter = async (characterId: string) => {
         // Generate post content
         const model = "gemini-2.0-flash";
         const postContent = await generateResponse(
-            POST_GENERATION.PROMPT(characterId),
+            await POST_GENERATION.PROMPT(characterId),
             model,
             POST_GENERATION.SYSTEM,
         );

@@ -6,14 +6,19 @@ export const POST_GENERATION = {
      * @param characterId - The ID of the character to generate a post for.
      * @returns The formatted prompt string.
      */
-    PROMPT: (characterId: string): string => {
+    PROMPT: async (characterId: string): Promise<string> => {
+        const { character, error: characterDetailsError } = await characterDetailsProvider(characterId);
+        const { events, error: recentEventsError } = await eventsProvider(characterId);
+
         return `Generate a short social media post (max 280 characters) from the perspective of the following character, considering the recent events and using supported markdown where appropriate.
 
-**Character Details:**
-${characterDetailsProvider(characterId)}
+${!characterDetailsError ? `**Character Details:**
+${character}
+` : ""}
 
-**Recent Events:**
-${eventsProvider(characterId)}
+${!recentEventsError ? `**Recent Events:**
+${events}
+` : ""}
 
 
 Remember to write ONLY the post content itself, matching the character's voice and personality, staying under the character limit, and using only the specified markdown syntax.
