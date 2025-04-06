@@ -56,10 +56,16 @@ export const fetchForUser = async (user: User, previouslySeenContent: ContentRef
         .filter(post => !seenIds.has(post.id));
 
     // Fetch available characters (not subscribed to and not seen)
-    const { data: characters, error: charsError } = await supabase
+    const charactersQuery = supabase
         .from('characters')
         .select('id, created_at')
-        .eq('public', true)
+        .eq('public', true);
+
+    if (preferences.nsfw_filter === 'hide') {
+        charactersQuery.eq('nsfw', false);
+    }
+
+    const { data: characters, error: charsError } = await charactersQuery
         .order('created_at', { ascending: false });
 
     if (charsError) throw charsError;
@@ -155,6 +161,7 @@ export const fetchForPublic = async (previouslySeenContent: ContentReference[] =
         .from('characters')
         .select('id, created_at')
         .eq('public', true)
+        .eq('nsfw', false) // Always hide NSFW for public feed
         .order('created_at', { ascending: false });
 
     if (charsError) throw charsError;
