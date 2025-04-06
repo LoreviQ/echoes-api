@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { generateAvatar, generateCharacter, generateBanner } from '../controllers/characters';
+import { generateAvatar, generateCharacter, generateBanner, generateCharacterAttributes } from '../controllers/characters';
 
 const router: Router = express.Router();
 
@@ -7,5 +7,6 @@ const router: Router = express.Router();
 router.post('/character', generateCharacter);
 router.post('/character/avatar', generateAvatar);
 router.post('/character/banner', generateBanner);
+router.post('/character/attributes', generateCharacterAttributes);
 
 export default router; 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { generateCharacterFromTags, generateAvatarForCharacter, generateBannerForCharacter } from '../services/ai_generation/content';
+import { generateCharacterFromTags, generateAvatarForCharacter, generateBannerForCharacter, generateCharacterAttributesForCharacter } from '../services/ai_generation/content';
 import { GeneratedCharacter } from '../types/character';
 
 interface CharacterGenerationRequest {
@@ -73,6 +73,29 @@ export const generateBanner = async (req: Request, res: Response): Promise<any> 
         });
     } catch (error: any) {
         console.error('Error generating banner:', error);
+        return res.status(500).json({
+            success: false,
+            error: error.message || 'An unexpected error occurred'
+        });
+    }
+}
+
+/**
+ * Generate attributes based on character
+ */
+export const generateCharacterAttributes = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const character = req.body as GeneratedCharacter;
+
+        // Generate attributes using the service function
+        const result = await generateCharacterAttributesForCharacter(character);
+
+        return res.status(200).json({
+            success: true,
+            content: result
+        });
+    } catch (error: any) {
+        console.error('Error generating character attributes:', error);
         return res.status(500).json({
             success: false,
             error: error.message || 'An unexpected error occurred'

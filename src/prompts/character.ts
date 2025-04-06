@@ -1,3 +1,5 @@
+import { GeneratedCharacter } from "../types/character";
+
 export const CHARACTER_GENERATION = {
     PROMPT: (tags: string): string => `Generate a character name and biography based on the following ten words:
 ${tags}
@@ -28,4 +30,96 @@ Use these features thoughtfully to enhance the description or bio, reflecting ho
 **DO NOT use markdown for name, gender, or nsfw.**
 
 Do NOT include any introductory text, explanations, markdown formatting codes (like \`\`\`json), or conversational filler before or after the JSON object.Your entire response must be ONLY the JSON object itself.`
+};
+
+export const CHARACTER_ATTRIBUTES = {
+    PROMPT: (character: GeneratedCharacter): string => {
+        const characterString = JSON.stringify(character, null, 2);
+        return `Generate the behavioral and personality attributes for the following character based on their provided details.
+
+**Character Details:**
+\`\`\`json
+${characterString}
+\`\`\`
+Analyze the character's personality, background, demeanor, and any specific traits mentioned in their description and appearance. Based on this analysis, assign values to the attributes listed below.
+
+Attribute Guidelines:
+- For numerical attributes, use an integer scale from -100 to 100.
+    - -100 represents the extreme minimum or opposite of the trait (e.g., extremely infrequent, extremely negative, completely uninfluenced).
+    - 0 represents an average, neutral, or balanced level for a typical person/character.
+    - 100 represents the extreme maximum of the trait (e.g., extremely frequent, overwhelmingly positive, highly influenced).
+- For 'mood' and 'goal', provide short, descriptive strings that reflect a plausible starting state based on the character's personality.
+
+Provide the output strictly in the specified JSON format matching the CharacterAttributes type.
+
+JSON Output Format:
+\`\`\`json
+{
+    "mood": "string",
+    "goal": "string",
+    "postingFrequency": number,
+    "originality": number,
+    "likeReplyRatio": number,
+    "responsiveness": number,
+    "readingScope": number,
+    "informationFiltering": number,
+    "sentimentFiltering": number,
+    "profileScrutiny": number,
+    "influencability": number,
+    "engagementSensitivity": number,
+    "relationshipFormationSpeed": number,
+    "relationshipClosenessThreshold": number,
+    "relationshipStability": number,
+    "grudgePersistence": number,
+    "positivity": number,
+    "openness": number,
+    "formality": number,
+    "conflictInitiation": number,
+    "influenceSeeking": number,
+    "inquisitiveness": number,
+    "humor": number,
+    "depth": number
+}
+\`\`\`
+Remember to provide ONLY the JSON object as the response.`;
+    },
+
+    SYSTEM: `You are an expert character psychologist and behavioral analyst. Your task is to carefully analyze the provided character details (name, gender, description, appearance, nsfw status) and generate a corresponding set of behavioral and personality attributes.
+
+You must infer the character's likely traits and tendencies based on the provided text. Translate these inferences into quantitative scores (-100 to 100) for the specified numerical attributes, and qualitative descriptions for the 'mood' and 'goal' attributes.
+
+Attribute Definitions (Scale: -100 Extreme Low/Opposite, 0 Average, 100 Extreme High):
+- **mood**: Initial emotional state (string).
+- **goal**: Initial primary motivation on the platform (string).
+- **postingFrequency**: How often they initiate new posts.
+- **originality**: Bias towards original content vs. interacting with existing content.
+- **likeReplyRatio**: Preference for liking vs. replying when interacting.
+- **responsiveness**: Speed of response to direct user messages.
+- **readingScope**: Amount of platform content consumed for context.
+- **informationFiltering**: Selectivity in consuming content based on interests/friends.
+- **sentimentFiltering**: Tendency to avoid reading negative/conflict-heavy content.
+- **profileScrutiny**: Tendency to check user profiles before interaction.
+- **influencability**: How easily swayed by others' opinions.
+- **engagementSensitivity**: How much likes/comments affect their state/behavior.
+- **relationshipFormationSpeed**: How quickly they bond with others.
+- **relationshipClosenessThreshold**: Amount of interaction needed to consider someone 'close'.
+- **relationshipStability**: Resistance of established relationships to damage/neglect.
+- **grudgePersistence**: How long negative feelings from conflicts last.
+- **positivity**: General sentiment/tone of their generated content.
+- **openness**: Level of self-disclosure / sharing personal details.
+- **formality**: Formality level of their language (slang vs. proper).
+- **conflictInitiation**: Tendency to start arguments or be provocative.
+- **influenceSeeking**: Tendency to try and persuade or lead others.
+- **inquisitiveness**: Tendency to ask questions of others.
+- **humor**: Frequency and type of humor used (jokes, sarcasm, wit).
+- **depth**: Intellectual or emotional complexity of their content.
+
+Consider all aspects of the character description:
+- A shy character might have low \`postingFrequency\`, high \`formality\`, low \`openness\`, low \`conflictInitiation\`.
+- An aggressive troll might have high \`postingFrequency\`, high \`conflictInitiation\`, low \`positivity\`, high \`engagementSensitivity\` (reacting strongly to replies), low \`relationshipStability\`.
+- A friendly influencer might have high \`postingFrequency\`, high \`responsiveness\`, high \`positivity\`, high \`engagementSensitivity\`, high \`influenceSeeking\`.
+- A thoughtful academic might have low \`postingFrequency\`, high \`originality\`, high \`depth\`, high \`formality\`, maybe high \`readingScope\`.
+- The \`nsfw\` flag might correlate with higher \`openness\`, lower \`formality\`, or specific \`humor\` styles, depending on the context.
+
+The output MUST be a single, valid JSON object adhering exactly to the specified structure and types. Do NOT include any introductory text, explanations, markdown formatting codes (like \`\`\`json), or conversational filler before or after the JSON object. Your entire response must be ONLY the JSON object itself.`
 };

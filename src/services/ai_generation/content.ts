@@ -2,10 +2,11 @@ import supabase, { SUPABASE_CONFIG } from '../../config/supabase';
 import { generateResponse } from './text';
 import { generateImage } from './image';
 import { POST_GENERATION } from '../../prompts/post';
-import { CHARACTER_GENERATION } from '../../prompts/character';
+import { CHARACTER_GENERATION, CHARACTER_ATTRIBUTES } from '../../prompts/character';
 import { IMAGE_GENERATION } from '../../prompts/image';
 import { MESSAGE_REPLY } from '../../prompts/message';
 import { GeneratedCharacter } from '../../types/character';
+import { CharacterAttributes } from '../../types/character';
 
 /**
  * Generates a post for a specific character
@@ -85,6 +86,72 @@ function parseGeneratedCharacter(content: string): GeneratedCharacter {
             throw new Error(`Failed to parse character data: ${error.message}`);
         }
         throw new Error('Failed to parse character data: Unknown error');
+    }
+}
+
+/**
+ * Parses the AI-generated attributes data into a structured CharacterAttributes object
+ */
+function parseGeneratedAttributes(content: string): CharacterAttributes {
+    try {
+        // First try to extract JSON from markdown code block if present
+        const jsonString = content.includes('```')
+            ? content.replace(/```json\n|\n```/g, '').trim()
+            : content.trim();
+
+        const parsedData = JSON.parse(jsonString);
+
+        // List of required fields and their expected types
+        const requiredFields = {
+            mood: 'string',
+            goal: 'string',
+            postingFrequency: 'number',
+            originality: 'number',
+            likeReplyRatio: 'number',
+            responsiveness: 'number',
+            readingScope: 'number',
+            informationFiltering: 'number',
+            sentimentFiltering: 'number',
+            profileScrutiny: 'number',
+            influencability: 'number',
+            engagementSensitivity: 'number',
+            relationshipFormationSpeed: 'number',
+            relationshipClosenessThreshold: 'number',
+            relationshipStability: 'number',
+            grudgePersistence: 'number',
+            positivity: 'number',
+            openness: 'number',
+            formality: 'number',
+            conflictInitiation: 'number',
+            influenceSeeking: 'number',
+            inquisitiveness: 'number',
+            humor: 'number',
+            depth: 'number'
+        } as const;
+
+        // Validate all required fields exist and have correct types
+        for (const [field, expectedType] of Object.entries(requiredFields)) {
+            if (!(field in parsedData)) {
+                throw new Error(`Missing required field: ${field}`);
+            }
+
+            const value = parsedData[field];
+            if (typeof value !== expectedType) {
+                throw new Error(`Field ${field} must be a ${expectedType}`);
+            }
+
+            // Validate number ranges
+            if (expectedType === 'number' && (value < -100 || value > 100)) {
+                throw new Error(`Field ${field} must be between -100 and 100`);
+            }
+        }
+
+        return parsedData as CharacterAttributes;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(`Failed to parse character attributes: ${error.message}`);
+        }
+        throw new Error('Failed to parse character attributes: Unknown error');
     }
 }
 
@@ -234,4 +301,21 @@ export const generateMessageResponse = async (threadId: string): Promise<string 
         console.error('Error generating message response:', error);
         return null;
     }
-}; 
+};
+
+/**
+ * Generates attributes for a character
+ * @param character The character to generate attributes for
+ * @returns Generated and parsed character attributes or throws an error
+ */
+export const generateCharacterAttributesForCharacter = async (character: GeneratedCharacter): Promise<CharacterAttributes> => {
+    const model = "gemini-2.0-flash";
+
+    const generatedContent = await generateResponse(
+        CHARACTER_ATTRIBUTES.PROMPT(character),
+        model,
+        CHARACTER_ATTRIBUTES.SYSTEM
+    );
+
+    return parseGeneratedAttributes(generatedContent);
+};
