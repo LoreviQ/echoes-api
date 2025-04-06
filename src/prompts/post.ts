@@ -1,4 +1,4 @@
-import { Character } from "../types/character"; // Assuming these types are defined elsewhere
+import { GeneratedCharacter } from "../types/character"; // Assuming these types are defined elsewhere
 import { Event } from "../types/events";     // Assuming these types are defined elsewhere
 
 export const POST_GENERATION = {
@@ -8,7 +8,7 @@ export const POST_GENERATION = {
      * @param events - An array of recent events relevant to the character.
      * @returns The formatted prompt string.
      */
-    PROMPT: (character: Character, events: Event[] = []): string => {
+    PROMPT: (character: GeneratedCharacter, events: Event[] = []): string => {
         const characterString = JSON.stringify(character, null, 2);
         const eventsString = events.length === 0 ? "No specific recent events provided." : JSON.stringify(events, null, 2);
 

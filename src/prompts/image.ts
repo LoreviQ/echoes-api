@@ -1,7 +1,7 @@
-import { Character } from "../types/character";
+import { GeneratedCharacter } from "../types/character";
 
 export const IMAGE_GENERATION = {
-    PROMPT: (characters: Character[], imageType: string): string => {
+    PROMPT: (characters: GeneratedCharacter[], imageType: string): string => {
         const jsonString = JSON.stringify(characters, null, 2);
         return `Generate the Stable Diffusion prompt tags based on the following JSON data and image type. Adhere strictly to the format and ordering rules specified in the system instructions. Output only the comma-separated tag string.
 

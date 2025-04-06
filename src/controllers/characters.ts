@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { generateCharacterFromTags, generateAvatarForCharacter, generateBannerForCharacter } from '../services/ai_generation/content';
-import { Character } from '../types/character';
+import { GeneratedCharacter } from '../types/character';
 
 interface CharacterGenerationRequest {
     tags: string;
@@ -39,7 +39,7 @@ export const generateCharacter = async (req: Request, res: Response): Promise<an
  */
 export const generateAvatar = async (req: Request, res: Response): Promise<any> => {
     try {
-        const character = req.body as Character;
+        const character = req.body as GeneratedCharacter;
 
         // Generate avatar using the service function
         const result = await generateAvatarForCharacter(character);
@@ -62,7 +62,7 @@ export const generateAvatar = async (req: Request, res: Response): Promise<any> 
  */
 export const generateBanner = async (req: Request, res: Response): Promise<any> => {
     try {
-        const character = req.body as Character;
+        const character = req.body as GeneratedCharacter;
 
         // Generate banner using the service function
         const result = await generateBannerForCharacter(character);

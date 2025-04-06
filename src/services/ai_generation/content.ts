@@ -5,7 +5,7 @@ import { POST_GENERATION } from '../../prompts/post';
 import { CHARACTER_GENERATION } from '../../prompts/character';
 import { IMAGE_GENERATION } from '../../prompts/image';
 import { MESSAGE_REPLY } from '../../prompts/message';
-import { Character } from '../../types/character';
+import { GeneratedCharacter } from '../../types/character';
 
 /**
  * Generates a post for a specific character
@@ -58,7 +58,7 @@ export const generatePostForCharacter = async (characterId: string) => {
 /**
  * Parses the AI-generated character data into a structured Character object
  */
-function parseGeneratedCharacter(content: string): Character {
+function parseGeneratedCharacter(content: string): GeneratedCharacter {
     try {
         // First try to extract JSON from markdown code block if present
         const jsonString = content.includes('```')
@@ -68,7 +68,7 @@ function parseGeneratedCharacter(content: string): Character {
         const parsedData = JSON.parse(jsonString);
 
         // Validate the required fields
-        if (!parsedData.name || !parsedData.gender || !parsedData.description || !parsedData.bio || typeof parsedData.nsfw !== 'boolean') {
+        if (!parsedData.name || !parsedData.gender || typeof parsedData.nsfw !== 'boolean') {
             throw new Error('Generated character data is missing required fields');
         }
 
@@ -77,7 +77,8 @@ function parseGeneratedCharacter(content: string): Character {
             gender: parsedData.gender,
             description: parsedData.description,
             bio: parsedData.bio,
-            nsfw: parsedData.nsfw
+            nsfw: parsedData.nsfw,
+            appearance: parsedData.appearance
         };
     } catch (error) {
         if (error instanceof Error) {
@@ -92,7 +93,7 @@ function parseGeneratedCharacter(content: string): Character {
  * @param tags Tags to describe the character to be generated
  * @returns The generated character or throws an error
  */
-export const generateCharacterFromTags = async (tags: string): Promise<Character> => {
+export const generateCharacterFromTags = async (tags: string): Promise<GeneratedCharacter> => {
     if (!tags) {
         throw new Error('Tags are required');
     }
@@ -115,12 +116,12 @@ export const generateCharacterFromTags = async (tags: string): Promise<Character
  * @param character The character to generate an avatar for
  * @returns Object containing the prompt and image URL
  */
-export const generateAvatarForCharacter = async (character: Character) => {
+export const generateAvatarForCharacter = async (character: GeneratedCharacter) => {
     const model = "gemini-2.0-flash";
 
     // Generate image prompt using text generation
     const imgGenPrompt = await generateResponse(
-        IMAGE_GENERATION.PROMPT([character], "social media avatar"),
+        IMAGE_GENERATION.PROMPT([character], "Social media avatar. Should include the character's appearance."),
         model,
         IMAGE_GENERATION.SYSTEM,
     );
@@ -143,12 +144,12 @@ export const generateAvatarForCharacter = async (character: Character) => {
  * @param character The character to generate a banner for
  * @returns Object containing the prompt and image URL
  */
-export const generateBannerForCharacter = async (character: Character) => {
+export const generateBannerForCharacter = async (character: GeneratedCharacter) => {
     const model = "gemini-2.0-flash";
 
     // Generate image prompt using text generation
     const imgGenPrompt = await generateResponse(
-        IMAGE_GENERATION.PROMPT([character], "banner image"),
+        IMAGE_GENERATION.PROMPT([character], "Banner image for social media. Does not have to include the character, but can if it makes sense."),
         model,
         IMAGE_GENERATION.SYSTEM,
     );
@@ -201,7 +202,7 @@ export const generateMessageResponse = async (threadId: string): Promise<string 
         // Get character details
         const { data: character, error: characterError } = await supabase
             .from('characters')
-            .select('name, gender, description, bio, nsfw')
+            .select('name, gender, description, bio, nsfw, appearance')
             .eq('id', thread.character_id)
             .single();
 

@@ -12,7 +12,8 @@ The output MUST be a single, valid JSON object. This JSON object must contain ex
 2.  \`gender\`: A string containing the gender of the character. This can be "male", "female", "not-applicable" (for example if the character is non-human) or a custom gender.
 3.  \`description\`: A string containing a compelling character biography of 2-3 paragraphs, reflecting the essence, personality, potential appearance, and backstory hinted at by the provided descriptive words.
 4.  \`bio\`: A string containing what the character would have on their social media profile. 200 characters max.
-5.  \`nsfw\`: A boolean value indicating whether the character contains adult or mature themes (true) or is suitable for all audiences (false).
+5.  \`appearance\`: A string containing a description of the character's appearance. Should include indentifiable traits like hair colour and eye colour.
+6.  \`nsfw\`: A boolean value indicating whether the character contains adult or mature themes (true) or is suitable for all audiences (false).
 
 **Formatting and Markdown:**
 You can use the following markdown features where appropriate for the character's voice, emphasis, or content structure:

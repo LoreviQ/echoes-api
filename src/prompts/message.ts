@@ -1,4 +1,4 @@
-import { Character } from "../types/character";
+import { GeneratedCharacter } from "../types/character";
 import { Event } from "../types/events";
 import { Message, convertMessageToJSON } from "../types/thread";
 
@@ -10,7 +10,7 @@ export const MESSAGE_REPLY = {
      * @param events - An array of recent events relevant to the character.
      * @returns The formatted prompt string.
      */
-    PROMPT: (character: Character, messageHistory: Message[], username: string = "User", events: Event[] = []): string => {
+    PROMPT: (character: GeneratedCharacter, messageHistory: Message[], username: string = "User", events: Event[] = []): string => {
         // Ensure there's history to reply to
         if (messageHistory.length === 0) {
             return "Error: Cannot generate a reply without message history.";
