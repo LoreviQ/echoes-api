@@ -7,4 +7,5 @@ export enum ContentType {
 export type ContentReference = {
     type: ContentType;
     id: string;
+    nsfw?: boolean;
 }; 

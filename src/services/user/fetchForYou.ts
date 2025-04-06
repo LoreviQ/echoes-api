@@ -1,6 +1,8 @@
 import supabase from '../../config/supabase';
 import { User } from '@supabase/supabase-js';
 import { ContentType, ContentReference } from '../../types/content';
+import { UserPreferencesSchema, DEFAULT_USER_PREFERENCES } from '../../types/userPreferences';
+
 
 const BATCH_SIZE = 100;
 const POSTS_INITIAL = 5;
@@ -11,12 +13,38 @@ export const fetchForUser = async (user: User, previouslySeenContent: ContentRef
     // Create a Set of previously seen IDs for efficient lookup
     const seenIds = new Set(previouslySeenContent.map(content => content.id));
 
+    // Get user preferences
+    let preferences: UserPreferencesSchema;
+    const { data, error: preferencesError } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+    if (preferencesError) {
+        preferences = DEFAULT_USER_PREFERENCES;
+    } else {
+        preferences = data;
+    }
+    console.log(preferences);
     // Fetch all available posts
-    const { data: posts, error: postsError } = await supabase
+    const query = supabase
         .from('posts')
-        .select('id, created_at')
+        .select(`
+            id,
+            created_at,
+            characters!inner (
+                id,
+                nsfw
+            )
+        `);
+
+    if (preferences.nsfw_filter === 'hide') {
+        query.not('characters.nsfw', 'eq', true);
+    }
+
+    const { data: posts, error: postsError } = await query
         .order('created_at', { ascending: false })
-        .limit(BATCH_SIZE * 2); // Fetch extra to account for filtering
+        .limit(BATCH_SIZE * 2);     // Fetch extra to account for filtering
 
     if (postsError) throw postsError;
 
@@ -101,7 +129,15 @@ export const fetchForPublic = async (previouslySeenContent: ContentReference[] =
     // Fetch all available posts
     const { data: posts, error: postsError } = await supabase
         .from('posts')
-        .select('id, created_at')
+        .select(`
+            id,
+            created_at,
+            characters!inner (
+                id,
+                nsfw
+            )
+        `)
+        .not('characters.nsfw', 'eq', true) // Always hide NSFW for public feed
         .order('created_at', { ascending: false })
         .limit(BATCH_SIZE * 2); // Fetch extra to account for filtering
 
