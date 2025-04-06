@@ -20,10 +20,15 @@ export const generateCharacter = async (req: Request, res: Response): Promise<an
 
         // Generate character using the service function
         const parsedCharacter = await generateCharacterFromTags(tags);
+        // generate attributes
+        const attributes = await generateCharacterAttributesForCharacter(parsedCharacter);
 
         return res.status(200).json({
             success: true,
-            content: parsedCharacter
+            content: {
+                character: parsedCharacter,
+                attributes: attributes
+            }
         });
     } catch (error: any) {
         console.error('Error generating character:', error);
