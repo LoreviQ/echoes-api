@@ -7,6 +7,8 @@ export type Thread = {
     updated_at: string;
 }
 
+export type ThreadIDs = Pick<Thread, 'id' | 'character_id' | 'user_id'>;
+
 export type Message = {
     id: string;
     thread_id: string;

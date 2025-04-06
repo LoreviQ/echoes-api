@@ -1,28 +1,19 @@
-import { GeneratedCharacter } from "../types/character"; // Assuming these types are defined elsewhere
-import { Event } from "../types/events";     // Assuming these types are defined elsewhere
+import { characterDetailsProvider, eventsProvider } from "../providers";
 
 export const POST_GENERATION = {
     /**
      * Creates the user prompt for generating a social media post.
-     * @param character - The character object posting.
-     * @param events - An array of recent events relevant to the character.
+     * @param characterId - The ID of the character to generate a post for.
      * @returns The formatted prompt string.
      */
-    PROMPT: (character: GeneratedCharacter, events: Event[] = []): string => {
-        const characterString = JSON.stringify(character, null, 2);
-        const eventsString = events.length === 0 ? "No specific recent events provided." : JSON.stringify(events, null, 2);
-
+    PROMPT: (characterId: string): string => {
         return `Generate a short social media post (max 280 characters) from the perspective of the following character, considering the recent events and using supported markdown where appropriate.
 
 **Character Details:**
-\`\`\`json
-${characterString}
-\`\`\`
+${characterDetailsProvider(characterId)}
 
 **Recent Events:**
-\`\`\`json
-${eventsString}
-\`\`\`
+${eventsProvider(characterId)}
 
 
 Remember to write ONLY the post content itself, matching the character's voice and personality, staying under the character limit, and using only the specified markdown syntax.

@@ -1,6 +1,7 @@
-import { GeneratedCharacter } from "../types/character";
-import { Event } from "../types/events";
-import { Message, convertMessageToJSON } from "../types/thread";
+import supabase from "../config/supabase";
+import { characterDetailsProvider, messageHistoryProvider, eventsProvider } from "../providers";
+import { ThreadIDs } from "../types/thread";
+
 
 export const MESSAGE_REPLY = {
     /**
@@ -10,44 +11,36 @@ export const MESSAGE_REPLY = {
      * @param events - An array of recent events relevant to the character.
      * @returns The formatted prompt string.
      */
-    PROMPT: (character: GeneratedCharacter, messageHistory: Message[], username: string = "User", events: Event[] = []): string => {
-        // Ensure there's history to reply to
-        if (messageHistory.length === 0) {
-            return "Error: Cannot generate a reply without message history.";
-            // Or handle this case appropriately in your application logic
+    PROMPT: async (thread_id: string): Promise<{ prompt: string | null, error: any }> => {
+        // Get thread details
+        const { data: thread, error: threadError } = await supabase
+            .from('threads')
+            .select('character_id, user_id')
+            .eq('id', thread_id)
+            .single() as { data: ThreadIDs | null, error: any };
+
+        if (threadError || !thread) {
+            return { prompt: null, error: threadError };
         }
 
-        const characterString = JSON.stringify(character, null, 2);
-        // Convert messages to the simplified format
-        const formattedMessages = messageHistory.map(msg =>
-            convertMessageToJSON(msg, username, character.name)
-        );
-        const historyString = JSON.stringify(formattedMessages, null, 2);
-        const eventsString = events.length === 0 ? "No specific recent external events provided." : JSON.stringify(events, null, 2);
-        const replyingCharacterName = character.name || "this character"; // Use name if available
-
-        return `Generate a text message reply from the perspective of the character '${replyingCharacterName}', responding naturally to the *last message* in the provided history. Consider the character's personality, the full conversation context (including timestamps and potential time gaps), and any recent events influencing their mood. Use supported markdown where appropriate for emphasis or structure.
+        const prompt = `
+Generate a text message reply from the perspective of the character, responding naturally to the *last message* in the provided history. Consider the character's personality, the full conversation context (including timestamps and potential time gaps), and any recent events influencing their mood. Use supported markdown where appropriate for emphasis or structure.
 Use supported markdown where appropriate.
 
 **Character Details (Replying as):**
-\`\`\`json
-${characterString}
-\`\`\`
+${characterDetailsProvider(thread.character_id)}
 
 **Message History (Oldest to Newest):**
-\`\`\`json
-${historyString}
-\`\`\`
+${messageHistoryProvider(thread)}
 
 **Recent Events (Could influence mood/reply):**
-\`\`\`json
-${eventsString}
-\`\`\`
+${eventsProvider(thread.character_id)}
 
 Remember to write ONLY the reply message content itself. Match the character's voice and personality. Keep it suitable for a text conversation (usually concise, but longer rants are okay if in character). Use only the specified markdown syntax.
 
 **Reply:**
-`;
+`
+        return { prompt, error: null };
     },
 
     /**

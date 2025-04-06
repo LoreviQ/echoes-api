@@ -15,22 +15,10 @@ import { CharacterAttributes } from '../../types/character';
  */
 export const generatePostForCharacter = async (characterId: string) => {
     try {
-        // Fetch character details
-        const { data: character, error: characterError } = await supabase
-            .from('characters')
-            .select('*')
-            .eq('id', characterId)
-            .single();
-
-        if (characterError || !character) {
-            console.error('Error fetching character:', characterError);
-            return null;
-        }
-
         // Generate post content
         const model = "gemini-2.0-flash";
         const postContent = await generateResponse(
-            POST_GENERATION.PROMPT(character),
+            POST_GENERATION.PROMPT(characterId),
             model,
             POST_GENERATION.SYSTEM,
         );
@@ -243,55 +231,16 @@ export const generateBannerForCharacter = async (character: GeneratedCharacter) 
  */
 export const generateMessageResponse = async (threadId: string): Promise<string | null> => {
     try {
-        // Get thread details to know which character should respond
-        const { data: thread, error } = await supabase
-            .from('threads')
-            .select('character_id, user_id')
-            .eq('id', threadId)
-            .single();
-
-        if (error || !thread) {
-            console.error('Error fetching thread:', error);
+        // Build the prompt
+        const { prompt, error } = await MESSAGE_REPLY.PROMPT(threadId);
+        if (error || !prompt) {
+            console.error('Error generating message response:', error);
             return null;
         }
 
-        // Get user email from auth.users
-        const { data: userData, error: userError } = await supabase.auth
-            .admin.getUserById(thread.user_id);
-
-        if (userError || !userData || !userData.user) {
-            console.error('Error fetching user:', userError);
-            return null;
-        }
-
-        const userEmail = userData.user.email;
-
-        // Get character details
-        const { data: character, error: characterError } = await supabase
-            .from('characters')
-            .select('name, gender, description, bio, nsfw, appearance')
-            .eq('id', thread.character_id)
-            .single();
-
-        if (characterError || !character) {
-            console.error('Error fetching character:', characterError);
-            return null;
-        }
-
-        // Get message history
-        const { data: messageHistory, error: messageHistoryError } = await supabase
-            .from('messages')
-            .select('*')
-            .eq('thread_id', threadId);
-
-        if (messageHistoryError || !messageHistory) {
-            console.error('Error fetching message history:', messageHistoryError);
-            return null;
-        }
-
-        // Generate character response
+        // Generate the response
         const generatedResponse = await generateResponse(
-            MESSAGE_REPLY.PROMPT(character, messageHistory, userEmail),
+            prompt,
             "gemini-2.0-flash",
             MESSAGE_REPLY.SYSTEM
         );
