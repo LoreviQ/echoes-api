@@ -1,7 +1,9 @@
-import supabase from '../../config/supabase';
-import { User } from '@supabase/supabase-js';
-import { ContentType, ContentReference } from '../../types/content';
-import { UserPreferencesSchema, DEFAULT_USER_PREFERENCES } from '../../types/userPreferences';
+import type { User } from '@supabase/supabase-js';
+
+import { ContentType, ContentReference } from 'echoes-shared';
+
+import supabase from '@/config/supabase';
+import { UserPreferencesSchema, DEFAULT_USER_PREFERENCES } from '@/types/userPreferences';
 
 
 const BATCH_SIZE = 100;
@@ -25,7 +27,6 @@ export const fetchForUser = async (user: User, previouslySeenContent: ContentRef
     } else {
         preferences = data;
     }
-    console.log(preferences);
     // Fetch all available posts
     const query = supabase
         .from('posts')

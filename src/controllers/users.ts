@@ -1,7 +1,9 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../middleware/auth';
-import { fetchForUser, fetchForPublic } from '../services/user/fetchForYou';
-import { ContentReference } from '../types/content';
+
+import type { ContentReference } from 'echoes-shared';
+
+import { AuthenticatedRequest } from '@/middleware/auth';
+import { fetchForUser, fetchForPublic } from '@/services/user/fetchForYou';
 
 export const getForYou = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
     try {

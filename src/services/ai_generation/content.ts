@@ -1,11 +1,8 @@
-import supabase, { SUPABASE_CONFIG } from '../../config/supabase';
-import { generateResponse } from './text';
-import { generateImage } from './image';
-import { POST_GENERATION } from '../../prompts/post';
-import { CHARACTER_GENERATION, CHARACTER_ATTRIBUTES } from '../../prompts/character';
-import { IMAGE_GENERATION } from '../../prompts/image';
-import { MESSAGE_REPLY } from '../../prompts/message';
 import type { GeneratedCharacter, CharacterAttributes } from 'echoes-shared';
+
+import supabase, { SUPABASE_CONFIG } from '@/config/supabase';
+import { generateResponse, generateImage } from '@/services/ai_generation';
+import { POST_GENERATION, CHARACTER_GENERATION, CHARACTER_ATTRIBUTES, IMAGE_GENERATION, MESSAGE_REPLY } from '@/prompts';
 
 /**
  * Generates a post for a specific character
