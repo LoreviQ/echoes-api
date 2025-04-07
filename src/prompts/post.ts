@@ -1,4 +1,4 @@
-import { characterDetailsProvider, eventsProvider } from "../providers";
+import { characterDetailsProvider, eventsProvider } from "@/providers";
 
 export const POST_GENERATION = {
     /**

@@ -1,5 +1,5 @@
-import supabase from '../config/supabase';
-import { wrapInCodeBlock } from '../utils/string';
+import supabase from '@/config/supabase';
+import { wrapInCodeBlock } from '@/utils/string';
 
 /**
  * Fetches character details from the database and converts them to a JSON string.

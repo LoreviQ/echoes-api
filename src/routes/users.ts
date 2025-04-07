@@ -1,6 +1,7 @@
 import express, { Router } from 'express';
-import { getForYou } from '../controllers/users';
-import { optionalAuth } from '../middleware/auth';
+
+import { getForYou } from '@/controllers/users';
+import { optionalAuth } from '@/middleware/auth';
 
 const router: Router = express.Router();
 

@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { generateAvatar, generateCharacter, generateBanner, generateCharacterAttributes } from '../controllers/characters';
+import { generateAvatar, generateCharacter, generateBanner, generateCharacterAttributes } from '@/controllers/characters';
 
 const router: Router = express.Router();
 

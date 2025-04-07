@@ -1,6 +1,6 @@
-import supabase from "../config/supabase";
-import { characterDetailsProvider, messageHistoryProvider, eventsProvider } from "../providers";
-import { ThreadIDs } from "../types/thread";
+import supabase from "@/config/supabase";
+import { characterDetailsProvider, messageHistoryProvider, eventsProvider } from "@/providers";
+import { type ThreadIDs } from "echoes-shared";
 
 
 export const MESSAGE_REPLY = {

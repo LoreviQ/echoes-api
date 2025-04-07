@@ -1,9 +1,10 @@
-import { subscribeToTable } from '../../config/supabase';
-import supabase from '../../config/supabase';
-import { Message } from '../../types/thread';
-import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
-import { RealtimeChannel } from '@supabase/supabase-js';
-import { generateMessageResponse } from '../ai_generation/content';
+import { RealtimePostgresChangesPayload, RealtimeChannel } from '@supabase/supabase-js';
+
+import { type MessageSchema } from 'echoes-shared';
+
+import { subscribeToTable } from '@/config/supabase';
+import supabase from '@/config/supabase';
+import { generateMessageResponse } from '@/services/ai_generation/content';
 
 export class MessageService {
     private messageChannel: RealtimeChannel | null = null;
@@ -52,12 +53,12 @@ export class MessageService {
             created_at: string;
         };
 
-        const message: Message = {
+        const message: MessageSchema = {
             id: payloadData.id,
             thread_id: payloadData.thread_id,
             sender_type: payloadData.sender_type,
             content: payloadData.content,
-            created_at: new Date(payloadData.created_at)
+            created_at: payloadData.created_at
         };
 
         // Only respond to user messages
@@ -70,7 +71,7 @@ export class MessageService {
     /**
      * Generate and save a character response to a user message
      */
-    private async generateAndSaveResponse(userMessage: Message) {
+    private async generateAndSaveResponse(userMessage: MessageSchema) {
         try {
             // Use the AI service to generate a response
             const generatedResponse = await generateMessageResponse(userMessage.thread_id);
@@ -81,7 +82,7 @@ export class MessageService {
             }
 
             // Create and save the response
-            const characterResponse: Omit<Message, 'id' | 'created_at'> = {
+            const characterResponse: Omit<MessageSchema, 'id' | 'created_at'> = {
                 thread_id: userMessage.thread_id,
                 sender_type: 'character',
                 content: generatedResponse

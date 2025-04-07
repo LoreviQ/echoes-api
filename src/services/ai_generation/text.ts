@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import dotenv from 'dotenv';
-import { recordGeneration } from '../supabase';
+import { recordGeneration } from '@/services/supabase';
 
 // Load environment variables
 dotenv.config();

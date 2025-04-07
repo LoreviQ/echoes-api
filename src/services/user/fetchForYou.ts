@@ -1,9 +1,10 @@
 import type { User } from '@supabase/supabase-js';
 
-import { ContentType, ContentReference } from 'echoes-shared';
+import { ContentType, type ContentReference, type UserPreferencesSchema } from 'echoes-shared';
 
 import supabase from '@/config/supabase';
-import { UserPreferencesSchema, DEFAULT_USER_PREFERENCES } from '@/types/userPreferences';
+import { DEFAULT_USER_PREFERENCES } from '@/config/preferences';
+
 
 
 const BATCH_SIZE = 100;
