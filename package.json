@@ -17,6 +17,7 @@
         "axios": "^1.8.4",
         "civitai": "^0.1.15",
         "dotenv": "^16.3.1",
+        "echoes-shared": "github:LoreviQ/echoes-shared#main",
         "express": "^5.1.0",
         "uuid": "^11.1.0"
     },

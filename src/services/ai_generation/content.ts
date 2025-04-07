@@ -5,8 +5,7 @@ import { POST_GENERATION } from '../../prompts/post';
 import { CHARACTER_GENERATION, CHARACTER_ATTRIBUTES } from '../../prompts/character';
 import { IMAGE_GENERATION } from '../../prompts/image';
 import { MESSAGE_REPLY } from '../../prompts/message';
-import { GeneratedCharacter } from '../../types/character';
-import { CharacterAttributes } from '../../types/character';
+import type { GeneratedCharacter, CharacterAttributes } from 'echoes-shared';
 
 /**
  * Generates a post for a specific character

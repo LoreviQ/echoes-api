@@ -1,4 +1,4 @@
-import { GeneratedCharacter } from "../types/character";
+import type { GeneratedCharacter } from "echoes-shared";
 
 export const CHARACTER_GENERATION = {
     PROMPT: (tags: string): string => `Generate a character name and biography based on the following ten words:

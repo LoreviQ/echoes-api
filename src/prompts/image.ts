@@ -1,4 +1,4 @@
-import { GeneratedCharacter } from "../types/character";
+import type { GeneratedCharacter } from "echoes-shared";
 
 export const IMAGE_GENERATION = {
     PROMPT: (characters: GeneratedCharacter[], imageType: string): string => {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { generateCharacterFromTags, generateAvatarForCharacter, generateBannerForCharacter, generateCharacterAttributesForCharacter } from '../services/ai_generation/content';
-import { GeneratedCharacter } from '../types/character';
+import type { GeneratedCharacter } from 'echoes-shared';
 
 interface CharacterGenerationRequest {
     tags: string;
