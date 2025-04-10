@@ -17,34 +17,34 @@ export function messageHistoryProvider(threadId: string): Provider {
             const { thread, error: threadError } = await database.getThread(threadId, supabase);
             if (threadError || !thread) {
                 console.error('Error fetching thread:', threadError);
-                return { messageHistory: null, error: threadError };
+                return undefined;
             }
 
             // Fetch the message history from the database
             const { messages, error: messageError } = await database.getMessages(thread.id, supabase);
             if (messageError || !messages) {
                 console.error('Error fetching message history:', messageError);
-                return { messageHistory: null, error: messageError };
+                return undefined;
             }
 
             // Get user email from auth.users
             const { data: userData, error: userError } = await supabase.auth.admin.getUserById(thread.user_id);
             if (userError || !userData || !userData.user || !userData.user.email) {
                 console.error('Error fetching user:', userError);
-                return { messageHistory: null, error: userError };
+                return undefined;
             }
 
             // Get character name
             const { character, error: characterError } = await database.getCharacter(thread.character_id, supabase);
             if (characterError || !character) {
                 console.error('Error fetching character:', characterError);
-                return { messageHistory: null, error: characterError };
+                return undefined;
             }
 
             // Convert the message history to a JSON string and wrap in code block
             const formattedMessages = formatMessageHistory(messages, userData.user.email, character.name);
             const messageHistory = wrapInCodeBlock(JSON.stringify(formattedMessages, null, 2));
-            return { messageHistory, error: null };
+            return messageHistory;
         }
     };
 }
