@@ -29,6 +29,5 @@ Keep the post concise and suitable for a microblogging platform. **The post MUST
 Your output MUST be ONLY the text content of the social media post itself.
 Do NOT include any introductory phrases, explanations, labels (like "Post:", "Output:"), greetings, or markdown formatting *around* the entire post content.
 Do NOT enclose the post in quotation marks unless the quotation marks are part of the character's actual post content.`,
-        suffix: ""
     }
 };

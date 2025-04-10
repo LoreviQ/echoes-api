@@ -41,6 +41,5 @@ Your output MUST be ONLY the text content of the reply message itself.
 Do NOT include any introductory phrases ("Okay, here's the reply:", "Reply:", etc.), explanations, labels, greetings outside the message content, or markdown formatting *around* the entire reply.
 Do NOT include the character's name or sender information unless it's naturally part of their message signature or style (which is rare in texts).
 Do NOT enclose the reply in quotation marks unless the quotation marks are part of the character's actual message content.`,
-        suffix: ""
     }
 };

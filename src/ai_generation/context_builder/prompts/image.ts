@@ -1,23 +1,11 @@
-import type { GeneratedCharacter } from "echoes-shared";
-
 export const IMAGE_GENERATION = {
-    PROMPT: (characters: GeneratedCharacter[], imageType: string): string => {
-        const jsonString = JSON.stringify(characters, null, 2);
-        return `Generate the Stable Diffusion prompt tags based on the following JSON data and image type. Adhere strictly to the format and ordering rules specified in the system instructions. Output only the comma-separated tag string.
-
-**Input JSON:**
-\`\`\`json
-${jsonString}
-\`\`\`
-
-**Image Type:**
-${imageType}
-
-**Output:**
-`;
+    PROMPT: {
+        prefix: `Generate the Stable Diffusion prompt tags based on the following JSON data and image type. Adhere strictly to the format and ordering rules specified in the system instructions. Output only the comma-separated tag string.`,
+        suffix: `Remember to write ONLY the tag string itself.`,
     },
 
-    SYSTEM: `You are an AI assistant specialized in converting structured character data into comma-separated Stable Diffusion prompt tags.
+    SYSTEM: {
+        prefix: `You are an AI assistant specialized in converting structured character data into comma-separated Stable Diffusion prompt tags.
 Your goal is to generate a single string of tags suitable for an image generation API, based on the provided JSON character data and image type.
 
 **Input:**
@@ -42,4 +30,5 @@ Your goal is to generate a single string of tags suitable for an image generatio
 -   Infer reasonable details where necessary (e.g., if clothing isn't mentioned, you might omit or use a generic tag like \`casual clothes\` if context allows, but prioritize explicit info).
 -   Use the \`image_type\` to heavily influence composition, background, and style tags.
 -   Focus solely on generating the tag string. Do not add commentary.`
+    }
 }; 
