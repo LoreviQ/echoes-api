@@ -20,8 +20,18 @@ export function characterDetailsProvider(character_id: string): Provider {
                 throw error;
             }
 
-            // Convert the character data to a string and wrap in code block
-            return wrapInCodeBlock(JSON.stringify(character, null, 2));
+            // Create an object with only the fields from GeneratedCharacter
+            const generatedCharacterData: GeneratedCharacter = {
+                name: character.name,
+                gender: character.gender,
+                description: character.description,
+                bio: character.bio,
+                nsfw: character.nsfw,
+                appearance: character.appearance,
+            };
+
+            // Convert the filtered character data to a string and wrap in code block
+            return wrapInCodeBlock(JSON.stringify(generatedCharacterData, null, 2));
         }
     };
 }

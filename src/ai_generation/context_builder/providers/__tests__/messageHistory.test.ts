@@ -9,7 +9,8 @@ import { type User } from '@supabase/supabase-js';
 jest.mock('echoes-shared', () => ({
     database: {
         getMessages: jest.fn(),
-        getCharacter: jest.fn()
+        getCharacter: jest.fn(),
+        getThread: jest.fn()
     }
 }));
 
@@ -40,6 +41,7 @@ describe('messageHistoryProvider', () => {
 
     const mockUser = { id: mockThread.user_id, email: 'user@example.com' } as User;
     const mockCharacter = { id: mockThread.character_id, name: 'Test Bot' };
+    const mockThreadData = { thread: mockThread, error: null };
 
     const formattedMessages = [
         { from: 'user@example.com', content: 'Hello', sent_at: '2024-01-01 10:00:00' },
@@ -49,13 +51,13 @@ describe('messageHistoryProvider', () => {
     const expectedJsonString = JSON.stringify(formattedMessages, null, 2);
     const expectedResult = `\`\`\`json\n${expectedJsonString}\n\`\`\``;
 
-
     beforeEach(() => {
         jest.clearAllMocks();
+        (database.getThread as jest.Mock).mockResolvedValue(mockThreadData);
     });
 
     it('should return a provider with correct title and type', () => {
-        const provider = messageHistoryProvider(mockThread);
+        const provider = messageHistoryProvider(mockThread.id);
         expect(provider.title).toBe('Message History');
         expect(provider.type).toBe('prompt');
     });
@@ -66,10 +68,11 @@ describe('messageHistoryProvider', () => {
         (supabase.auth.admin.getUserById as jest.Mock).mockResolvedValue({ data: { user: mockUser }, error: null });
         (database.getCharacter as jest.Mock).mockResolvedValue({ character: mockCharacter, error: null });
 
-        const provider = messageHistoryProvider(mockThread);
+        const provider = messageHistoryProvider(mockThread.id);
         const result = await provider.execute();
 
         // Verify calls
+        expect(database.getThread).toHaveBeenCalledWith(mockThread.id, supabase);
         expect(database.getMessages).toHaveBeenCalledWith(mockThread.id, supabase);
         expect(supabase.auth.admin.getUserById).toHaveBeenCalledWith(mockThread.user_id);
         expect(database.getCharacter).toHaveBeenCalledWith(mockThread.character_id, supabase);
@@ -79,14 +82,29 @@ describe('messageHistoryProvider', () => {
         expect(result).toEqual({ messageHistory: expectedResult, error: null });
     });
 
+    it('should return error if getThread fails', async () => {
+        const mockError = new Error('Database error fetching thread');
+        (database.getThread as jest.Mock).mockResolvedValue({ thread: null, error: mockError });
+
+        const provider = messageHistoryProvider(mockThread.id);
+        const result = await provider.execute();
+
+        expect(result).toEqual({ messageHistory: null, error: mockError });
+        expect(database.getMessages).not.toHaveBeenCalled();
+        expect(supabase.auth.admin.getUserById).not.toHaveBeenCalled();
+        expect(database.getCharacter).not.toHaveBeenCalled();
+        expect(wrapInCodeBlock).not.toHaveBeenCalled();
+    });
+
     it('should return error if getMessages fails', async () => {
         const mockError = new Error('Database error fetching messages');
         (database.getMessages as jest.Mock).mockResolvedValue({ messages: null, error: mockError });
 
-        const provider = messageHistoryProvider(mockThread);
+        const provider = messageHistoryProvider(mockThread.id);
         const result = await provider.execute();
 
         expect(result).toEqual({ messageHistory: null, error: mockError });
+        expect(database.getThread).toHaveBeenCalledWith(mockThread.id, supabase);
         expect(supabase.auth.admin.getUserById).not.toHaveBeenCalled();
         expect(database.getCharacter).not.toHaveBeenCalled();
         expect(wrapInCodeBlock).not.toHaveBeenCalled();
@@ -97,8 +115,7 @@ describe('messageHistoryProvider', () => {
         (database.getMessages as jest.Mock).mockResolvedValue({ messages: mockMessages, error: null });
         (supabase.auth.admin.getUserById as jest.Mock).mockResolvedValue({ data: { user: null }, error: mockError });
 
-
-        const provider = messageHistoryProvider(mockThread);
+        const provider = messageHistoryProvider(mockThread.id);
         const result = await provider.execute();
 
         expect(result).toEqual({ messageHistory: null, error: mockError });
@@ -113,7 +130,7 @@ describe('messageHistoryProvider', () => {
         (supabase.auth.admin.getUserById as jest.Mock).mockResolvedValue({ data: { user: mockUser }, error: null });
         (database.getCharacter as jest.Mock).mockResolvedValue({ character: null, error: mockError });
 
-        const provider = messageHistoryProvider(mockThread);
+        const provider = messageHistoryProvider(mockThread.id);
         const result = await provider.execute();
 
         expect(result).toEqual({ messageHistory: null, error: mockError });
