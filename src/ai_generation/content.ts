@@ -3,7 +3,7 @@ import type { GeneratedCharacter, CharacterAttributes } from 'echoes-shared';
 import supabase, { SUPABASE_CONFIG } from '@/config/supabase';
 import { generateResponse } from './text';
 import { generateImage } from './image';
-import { POST_GENERATION, CHARACTER_GENERATION, CHARACTER_ATTRIBUTES, IMAGE_GENERATION, MESSAGE_REPLY } from '@/prompts';
+import { POST_GENERATION, CHARACTER_GENERATION, CHARACTER_ATTRIBUTES, IMAGE_GENERATION, MESSAGE_REPLY } from '@/ai_generation/context_builder/prompts';
 
 /**
  * Generates a post for a specific character

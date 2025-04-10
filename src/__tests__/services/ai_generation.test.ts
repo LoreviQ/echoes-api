@@ -1,4 +1,4 @@
-import { generateResponse } from '../../services/ai_generation/text';
+import { generateResponse } from '../../ai_generation/text';
 import { GoogleGenAI } from '@google/genai';
 
 // Mock the Google GenAI library

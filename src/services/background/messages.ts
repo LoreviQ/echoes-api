@@ -4,7 +4,7 @@ import { type MessageSchema } from 'echoes-shared';
 
 import { subscribeToTable } from '@/config/supabase';
 import supabase from '@/config/supabase';
-import { generateMessageResponse } from '@/services/ai_generation/content';
+import { generateMessageResponse } from '@/ai_generation/content';
 
 export class MessageService {
     private messageChannel: RealtimeChannel | null = null;

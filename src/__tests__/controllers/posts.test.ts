@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { createPost } from '../../controllers/posts';
 import supabase from '../../config/supabase';
-import { generatePostForCharacter } from '../../services/ai_generation/content';
+import { generatePostForCharacter } from '../../ai_generation/content';
 
 // Mock generatePostForCharacter function
 jest.mock('../../services/ai_generation/content', () => ({

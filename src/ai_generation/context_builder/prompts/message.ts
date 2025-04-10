@@ -1,5 +1,5 @@
 import supabase from "@/config/supabase";
-import { characterDetailsProvider, messageHistoryProvider, eventsProvider } from "@/providers";
+import { characterDetailsProvider, messageHistoryProvider, eventsProvider } from "@/ai_generation/context_builder/providers";
 import { type ThreadIDs } from "echoes-shared";
 
 

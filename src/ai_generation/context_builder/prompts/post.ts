@@ -1,4 +1,4 @@
-import { characterDetailsProvider, eventsProvider } from "@/providers";
+import { characterDetailsProvider, eventsProvider } from "@/ai_generation/context_builder/providers";
 
 export const POST_GENERATION = {
     /**
