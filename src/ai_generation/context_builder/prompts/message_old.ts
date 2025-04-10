@@ -1,11 +1,59 @@
+import supabase from "@/config/supabase";
+import { characterDetailsProvider, messageHistoryProvider, eventsProvider } from "@/ai_generation/context_builder/providers";
+import { type ThreadIDs } from "echoes-shared";
+
+
 export const MESSAGE_REPLY = {
-    PROMPT: {
-        prefix: `Generate a text message reply from the perspective of the character, responding naturally to the *last message* in the provided history. Consider the character's personality, the full conversation context (including timestamps and potential time gaps), and any recent events influencing their mood. Use supported markdown where appropriate for emphasis or structure.
-Use supported markdown where appropriate.`,
-        suffix: `Remember to write ONLY the reply message content itself. Match the character's voice and personality. Keep it suitable for a text conversation (usually concise, but longer rants are okay if in character). Use only the specified markdown syntax.`
+    /**
+     * Creates the user prompt for generating a message reply.
+     * @param character - The character object replying.
+     * @param messageHistory - An array of Message objects, ordered chronologically (oldest to newest).
+     * @param events - An array of recent events relevant to the character.
+     * @returns The formatted prompt string.
+     */
+    PROMPT: async (thread_id: string): Promise<{ prompt: string | null, error: any }> => {
+        // Get thread details
+        const { data: thread, error: threadError } = await supabase
+            .from('threads')
+            .select('character_id, user_id')
+            .eq('id', thread_id)
+            .single() as { data: ThreadIDs | null, error: any };
+
+        if (threadError || !thread) {
+            return { prompt: null, error: threadError };
+        }
+
+        const { character, error: characterDetailsError } = await characterDetailsProvider(thread.character_id);
+        const { messageHistory, error: messageHistoryError } = await messageHistoryProvider(thread);
+        const { events, error: recentEventsError } = await eventsProvider(thread.character_id);
+
+        const prompt = `
+Generate a text message reply from the perspective of the character, responding naturally to the *last message* in the provided history. Consider the character's personality, the full conversation context (including timestamps and potential time gaps), and any recent events influencing their mood. Use supported markdown where appropriate for emphasis or structure.
+Use supported markdown where appropriate.
+
+${!characterDetailsError ? `**Character Details (Replying as):**
+${character}
+` : ""}
+
+${!messageHistoryError ? `**Message History (Oldest to Newest):**
+${messageHistory}
+` : ""}
+
+${!recentEventsError ? `**Recent Events (Could influence mood/reply):**
+${events}
+` : ""}
+
+Remember to write ONLY the reply message content itself. Match the character's voice and personality. Keep it suitable for a text conversation (usually concise, but longer rants are okay if in character). Use only the specified markdown syntax.
+
+**Reply:**
+`
+        return { prompt, error: null };
     },
-    SYSTEM: {
-        prefix: `You are a creative writer specializing in embodying fictional characters within text-based conversations.
+
+    /**
+     * System Instruction for the Gemini model guiding message reply generation.
+     */
+    SYSTEM: `You are a creative writer specializing in embodying fictional characters within text-based conversations.
 Your task is to generate a text message *reply* from the perspective of a given fictional character, responding naturally and appropriately to the latest message in a provided conversation history.
 You will receive character details (JSON), the message history (JSON array), and a list of recent events (JSON array) that might influence the character's current state of mind.
 
@@ -40,7 +88,5 @@ Keep the overall tone appropriate for a personal message exchange, unless the ch
 Your output MUST be ONLY the text content of the reply message itself.
 Do NOT include any introductory phrases ("Okay, here's the reply:", "Reply:", etc.), explanations, labels, greetings outside the message content, or markdown formatting *around* the entire reply.
 Do NOT include the character's name or sender information unless it's naturally part of their message signature or style (which is rare in texts).
-Do NOT enclose the reply in quotation marks unless the quotation marks are part of the character's actual message content.`,
-        suffix: ""
-    }
+Do NOT enclose the reply in quotation marks unless the quotation marks are part of the character's actual message content.`
 };
