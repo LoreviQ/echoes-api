@@ -41,84 +41,84 @@ describe('ContextBuilder', () => {
     });
 
     describe('prompt()', () => {
-        it('should join prefix and suffix with newlines', async () => {
+        it('should join prefix and suffix with newlines and default end string', async () => {
             const contextBuilder = builder(basePrompts);
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('prompt prefix\n\nprompt suffix');
+            expect(prompt).toBe('prompt prefix\n\nprompt suffix\n\n**REPLY**');
         });
 
-        it('should return only prefix when suffix is missing', async () => {
+        it('should return only prefix and default end string when suffix is missing', async () => {
             const contextBuilder = builder({
                 ...basePrompts,
                 PROMPT: { prefix: 'prompt prefix' }
             });
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('prompt prefix');
+            expect(prompt).toBe('prompt prefix\n\n**REPLY**');
         });
 
-        it('should return only suffix when prefix is missing', async () => {
+        it('should return only suffix and default end string when prefix is missing', async () => {
             const contextBuilder = builder({
                 ...basePrompts,
                 PROMPT: { suffix: 'prompt suffix' }
             });
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('prompt suffix');
+            expect(prompt).toBe('prompt suffix\n\n**REPLY**');
         });
 
-        it('should return empty string when both are missing', async () => {
+        it('should return only default end string when both are missing', async () => {
             const contextBuilder = builder({
                 ...basePrompts,
                 PROMPT: {}
             });
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('');
+            expect(prompt).toBe('**REPLY**');
         });
 
-        it('should include provider content between prefix and suffix', async () => {
+        it('should include provider content between prefix and suffix with default end string', async () => {
             const contextBuilder = builder(basePrompts);
             contextBuilder.addProvider(mockPromptProvider);
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('prompt prefix\n\n**Prompt Provider**\nprompt provider content\n\nprompt suffix');
+            expect(prompt).toBe('prompt prefix\n\n**Prompt Provider**\nprompt provider content\n\nprompt suffix\n\n**REPLY**');
         });
 
-        it('should include provider content after prefix when suffix is missing', async () => {
+        it('should include provider content after prefix with default end string when suffix is missing', async () => {
             const contextBuilder = builder({
                 ...basePrompts,
                 PROMPT: { prefix: 'prompt prefix' }
             });
             contextBuilder.addProvider(mockPromptProvider);
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('prompt prefix\n\n**Prompt Provider**\nprompt provider content');
+            expect(prompt).toBe('prompt prefix\n\n**Prompt Provider**\nprompt provider content\n\n**REPLY**');
         });
 
-        it('should include provider content before suffix when prefix is missing', async () => {
+        it('should include provider content before suffix with default end string when prefix is missing', async () => {
             const contextBuilder = builder({
                 ...basePrompts,
                 PROMPT: { suffix: 'prompt suffix' }
             });
             contextBuilder.addProvider(mockPromptProvider);
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('**Prompt Provider**\nprompt provider content\n\nprompt suffix');
+            expect(prompt).toBe('**Prompt Provider**\nprompt provider content\n\nprompt suffix\n\n**REPLY**');
         });
 
-        it('should return only provider content when both prefix and suffix are missing', async () => {
+        it('should return only provider content with default end string when both prefix and suffix are missing', async () => {
             const contextBuilder = builder({
                 ...basePrompts,
                 PROMPT: {}
             });
             contextBuilder.addProvider(mockPromptProvider);
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('**Prompt Provider**\nprompt provider content');
+            expect(prompt).toBe('**Prompt Provider**\nprompt provider content\n\n**REPLY**');
         });
 
-        it('should ignore system providers when building prompt', async () => {
+        it('should ignore system providers when building prompt and add default end string', async () => {
             const contextBuilder = builder(basePrompts);
             contextBuilder.addProvider(mockSystemProvider);
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('prompt prefix\n\nprompt suffix');
+            expect(prompt).toBe('prompt prefix\n\nprompt suffix\n\n**REPLY**');
         });
 
-        it('should handle multiple prompt providers', async () => {
+        it('should handle multiple prompt providers with default end string', async () => {
             const anotherPromptProvider: Provider = {
                 title: 'Another Provider',
                 type: 'prompt',
@@ -130,16 +130,31 @@ describe('ContextBuilder', () => {
             contextBuilder.addProvider(anotherPromptProvider);
 
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('prompt prefix\n\n**Prompt Provider**\nprompt provider content\n\n**Another Provider**\nanother content\n\nprompt suffix');
+            expect(prompt).toBe('prompt prefix\n\n**Prompt Provider**\nprompt provider content\n\n**Another Provider**\nanother content\n\nprompt suffix\n\n**REPLY**');
         });
 
-        it('should handle error from provider gracefully', async () => {
+        it('should handle error from provider gracefully with default end string', async () => {
             const errorPromptProvider: Provider = { ...mockErrorProvider, type: 'prompt' };
             const contextBuilder = builder(basePrompts);
             contextBuilder.addProvider(errorPromptProvider);
 
             const prompt = await contextBuilder.prompt();
-            expect(prompt).toBe('prompt prefix\n\nprompt suffix');
+            expect(prompt).toBe('prompt prefix\n\nprompt suffix\n\n**REPLY**');
+        });
+
+        it('should use custom endPromptString when provided', async () => {
+            const customEndString = "**CUSTOM END**";
+            const contextBuilder = builder(basePrompts, { endPromptString: customEndString });
+            const prompt = await contextBuilder.prompt();
+            expect(prompt).toBe(`prompt prefix\n\nprompt suffix\n\n${customEndString}`);
+        });
+
+        it('should use custom endPromptString with provider content', async () => {
+            const customEndString = "**FINISH HERE**";
+            const contextBuilder = builder(basePrompts, { endPromptString: customEndString });
+            contextBuilder.addProvider(mockPromptProvider);
+            const prompt = await contextBuilder.prompt();
+            expect(prompt).toBe(`prompt prefix\n\n**Prompt Provider**\nprompt provider content\n\nprompt suffix\n\n${customEndString}`);
         });
     });
 

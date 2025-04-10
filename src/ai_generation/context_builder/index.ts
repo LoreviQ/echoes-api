@@ -20,7 +20,13 @@ export interface Provider {
 }
 
 // Optional settings type (empty for now)
-export interface ContextBuilderSettings { }
+export interface ContextBuilderSettings {
+    endPromptString?: string;
+}
+
+export const ContextBuilderSettingsDefaults: ContextBuilderSettings = {
+    endPromptString: "**REPLY**",
+}
 
 export class ContextBuilder {
     private basePrompts: BasePrompts;
@@ -29,7 +35,7 @@ export class ContextBuilder {
 
     constructor(basePrompts: BasePrompts, settings: ContextBuilderSettings = {}) {
         this.basePrompts = basePrompts;
-        this.settings = settings;
+        this.settings = { ...ContextBuilderSettingsDefaults, ...settings };
         this.providers = [];
     }
 
@@ -71,23 +77,27 @@ export class ContextBuilder {
         const { prefix, suffix } = this.basePrompts.PROMPT;
         const providerContent = await this.executeProviders('prompt');
 
-        if (providerContent) {
-            return joinWithNewlines([prefix, providerContent, suffix].filter(Boolean));
-        }
+        const context = [
+            prefix,
+            providerContent,
+            suffix,
+            this.settings.endPromptString
+        ].filter(Boolean);
 
-        return joinWithNewlines([prefix, suffix].filter(Boolean));
+        return joinWithNewlines(context);
     }
 
     // Returns the built system prompt
     async system(): Promise<string> {
         const { prefix, suffix } = this.basePrompts.SYSTEM;
         const providerContent = await this.executeProviders('system');
+        const context = [
+            prefix,
+            providerContent,
+            suffix,
+        ].filter(Boolean);
 
-        if (providerContent) {
-            return joinWithNewlines([prefix, providerContent, suffix].filter(Boolean));
-        }
-
-        return joinWithNewlines([prefix, suffix].filter(Boolean));
+        return joinWithNewlines(context);
     }
 }
 
