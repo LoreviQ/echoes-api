@@ -1,6 +1,6 @@
 import supabase from '@/config/supabase';
 import { wrapInCodeBlock } from '@/utils/string';
-import { Provider } from '../index';
+import { Provider } from '@/ai_generation/context_builder';
 import { database } from 'echoes-shared';
 
 /**
