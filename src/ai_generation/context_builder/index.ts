@@ -11,9 +11,12 @@ export interface BasePrompts {
     }
 }
 
+export type ProviderType = 'system' | 'prompt';
+
 export interface Provider {
     title: string;
-    content: unknown; // Can be any type serializable to JSON
+    type: ProviderType;
+    execute: () => Promise<unknown>; // Function that returns provider content asynchronously
 }
 
 // Optional settings type (empty for now)
@@ -35,16 +38,56 @@ export class ContextBuilder {
         return this; // Allow chaining
     }
 
+    // Formats provider content into a string
+    private formatProviderContent(title: string, content: unknown): string {
+        return `**${title}**\n${content}`;
+    }
+
+    // Executes providers of the specified type and formats their results
+    private async executeProviders(type: ProviderType): Promise<string | undefined> {
+        const filteredProviders = this.providers.filter(provider => provider.type === type);
+
+        if (filteredProviders.length === 0) {
+            return undefined;
+        }
+
+        const results = await Promise.all(
+            filteredProviders.map(async (provider) => {
+                try {
+                    const content = await provider.execute();
+                    return this.formatProviderContent(provider.title, content);
+                } catch (error) {
+                    console.error(`Error executing provider "${provider.title}":`, error);
+                    return undefined; // Skip failed providers
+                }
+            })
+        );
+
+        return joinWithNewlines(results.filter(result => result !== undefined));
+    }
+
     // Returns the built user prompt
     async prompt(): Promise<string> {
         const { prefix, suffix } = this.basePrompts.PROMPT;
-        return joinWithNewlines([prefix, suffix]);
+        const providerContent = await this.executeProviders('prompt');
+
+        if (providerContent) {
+            return joinWithNewlines([prefix, providerContent, suffix].filter(Boolean));
+        }
+
+        return joinWithNewlines([prefix, suffix].filter(Boolean));
     }
 
     // Returns the built system prompt
     async system(): Promise<string> {
         const { prefix, suffix } = this.basePrompts.SYSTEM;
-        return joinWithNewlines([prefix, suffix]);
+        const providerContent = await this.executeProviders('system');
+
+        if (providerContent) {
+            return joinWithNewlines([prefix, providerContent, suffix].filter(Boolean));
+        }
+
+        return joinWithNewlines([prefix, suffix].filter(Boolean));
     }
 }
 
