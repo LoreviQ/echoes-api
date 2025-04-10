@@ -3,9 +3,9 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "start": "node -r tsconfig-paths/register dist/server.js",
-        "build": "tsc",
-        "dev": "ts-node src/server.ts",
+        "start": "node dist/server.js",
+        "build": "tsc && tsc-alias",
+        "dev": "ts-node -r tsconfig-paths/register src/server.ts",
         "test": "jest",
         "test:watch": "jest --watch",
         "test:coverage": "jest --coverage"
@@ -19,7 +19,6 @@
         "dotenv": "^16.3.1",
         "echoes-shared": "github:LoreviQ/echoes-shared#main",
         "express": "^5.1.0",
-        "tsconfig-paths": "^4.2.0",
         "uuid": "^11.1.0"
     },
     "devDependencies": {
@@ -31,6 +30,8 @@
         "supertest": "^7.1.0",
         "ts-jest": "^29.3.1",
         "ts-node": "^10.9.2",
+        "tsc-alias": "^1.8.15",
+        "tsconfig-paths": "^4.2.0",
         "typescript": "^5"
     }
 }

@@ -1,7 +1,8 @@
 import type { GeneratedCharacter, CharacterAttributes } from 'echoes-shared';
 
 import supabase, { SUPABASE_CONFIG } from '@/config/supabase';
-import { generateResponse, generateImage } from '@/services/ai_generation';
+import { generateResponse } from './text';
+import { generateImage } from './image';
 import { POST_GENERATION, CHARACTER_GENERATION, CHARACTER_ATTRIBUTES, IMAGE_GENERATION, MESSAGE_REPLY } from '@/prompts';
 
 /**
