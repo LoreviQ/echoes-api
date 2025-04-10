@@ -7,7 +7,9 @@ import { POST_GENERATION, CHARACTER_GENERATION, CHARACTER_ATTRIBUTES, IMAGE_GENE
 import { builder } from '@/ai_generation/context_builder';
 import { characterDetailsProvider, messageHistoryProvider, providedCharacterProvider } from '@/ai_generation/context_builder/providers';
 import { tagsProvider } from './context_builder/providers/tags';
-import { database } from 'echoes-shared';
+import { database } from '@/config/cachedDatabase';
+import { database as databaseActual } from 'echoes-shared';
+
 /**
  * Generates a post for a specific character
  * @param characterId The ID of the character to generate a post for
@@ -29,20 +31,14 @@ export const generatePostForCharacter = async (characterId: string) => {
         );
 
         // Create post in database
-        const { data, error } = await supabase
-            .from('posts')
-            .insert({
-                character_id: characterId,
-                content: postContent.trim()
-            })
-            .select();
+        const { post, error } = await databaseActual.createPost({ character_id: characterId, content: postContent.trim() }, supabase);
 
         if (error) {
             console.error('Error creating post:', error);
             return null;
         }
 
-        return data ? data[0] : null;
+        return post;
     } catch (error) {
         console.error('Unexpected error generating post:', error);
         return null;

@@ -1,8 +1,8 @@
 import supabase from '@/config/supabase';
 import { wrapInCodeBlock } from '@/utils/string';
 import { Provider } from '@/ai_generation/context_builder';
-import { type MessageSchema, type ThreadIDs, database } from 'echoes-shared';
-
+import { type MessageSchema } from 'echoes-shared';
+import { database } from '@/config/cachedDatabase';
 /**
  * Fetches the message history from the database and converts it to a JSON string.
  * @param thread_id - The ID of the thread to fetch.

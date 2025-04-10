@@ -1,7 +1,8 @@
 import supabase from '@/config/supabase';
 import { wrapInCodeBlock } from '@/utils/string';
 import { Provider } from '@/ai_generation/context_builder';
-import { database, GeneratedCharacter } from 'echoes-shared';
+import { GeneratedCharacter } from 'echoes-shared';
+import { database } from '@/config/cachedDatabase';
 
 /**
  * Fetches character details from the database and converts them to a JSON string.
