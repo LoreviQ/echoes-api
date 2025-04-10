@@ -8,6 +8,9 @@ const config: Config.InitialOptions = {
     transform: {
         '^.+\\.tsx?$': 'ts-jest',
     },
+    moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1'
+    },
     setupFiles: ['dotenv/config'],
     verbose: true,
     collectCoverage: true,

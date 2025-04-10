@@ -1,11 +1,13 @@
+import { joinWithNewlines } from '@/utils/string';
+
 export interface BasePrompts {
     PROMPT: {
-        prefix: string;
-        suffix: string;
+        prefix?: string;
+        suffix?: string;
     }
     SYSTEM: {
-        prefix: string;
-        suffix: string;
+        prefix?: string;
+        suffix?: string;
     }
 }
 
@@ -33,16 +35,16 @@ export class ContextBuilder {
         return this; // Allow chaining
     }
 
-    // Placeholder for prompt method
+    // Returns the built user prompt
     async prompt(): Promise<string> {
-        // Implementation to follow in the next stage
-        return "";
+        const { prefix, suffix } = this.basePrompts.PROMPT;
+        return joinWithNewlines([prefix, suffix]);
     }
 
-    // Placeholder for system method
+    // Returns the built system prompt
     async system(): Promise<string> {
-        // Implementation to follow in the next stage
-        return "";
+        const { prefix, suffix } = this.basePrompts.SYSTEM;
+        return joinWithNewlines([prefix, suffix]);
     }
 }
 
