@@ -1,6 +1,7 @@
 import supabase from '@/config/supabase';
 import { wrapInCodeBlock } from '@/utils/string';
 import { Provider } from '../index';
+import { database } from 'echoes-shared';
 
 /**
  * Fetches character details from the database and converts them to a JSON string.
@@ -13,19 +14,14 @@ export function characterDetailsProvider(character_id: string): Provider {
         type: 'prompt',
         execute: async () => {
             // Get character details from supabase
-            const { data, error } = await supabase
-                .from('characters')
-                .select('name, gender, description, bio, nsfw, appearance')
-                .eq('id', character_id)
-                .single();
-
-            if (error || !data) {
+            const { character, error } = await database.getCharacter(character_id, supabase);
+            if (error || !character) {
                 console.error('Error fetching character:', error);
                 throw error;
             }
 
             // Convert the character data to a string and wrap in code block
-            return wrapInCodeBlock(JSON.stringify(data, null, 2));
+            return wrapInCodeBlock(JSON.stringify(character, null, 2));
         }
     };
 }
