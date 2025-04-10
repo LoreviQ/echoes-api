@@ -8,11 +8,18 @@ import { type MessageSchema, type ThreadIDs, database } from 'echoes-shared';
  * @param thread_id - The ID of the thread to fetch.
  * @returns A promise containing the message history as a JSON string and any error that occurred.
  */
-export function messageHistoryProvider(thread: ThreadIDs): Provider {
+export function messageHistoryProvider(threadId: string): Provider {
     return {
         title: 'Message History',
         type: 'prompt',
         execute: async () => {
+            // Fetch the thread from the database
+            const { thread, error: threadError } = await database.getThread(threadId, supabase);
+            if (threadError || !thread) {
+                console.error('Error fetching thread:', threadError);
+                return { messageHistory: null, error: threadError };
+            }
+
             // Fetch the message history from the database
             const { messages, error: messageError } = await database.getMessages(thread.id, supabase);
             if (messageError || !messages) {

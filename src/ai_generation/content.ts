@@ -4,7 +4,10 @@ import supabase, { SUPABASE_CONFIG } from '@/config/supabase';
 import { generateResponse } from './text';
 import { generateImage } from './image';
 import { POST_GENERATION, CHARACTER_GENERATION, CHARACTER_ATTRIBUTES, IMAGE_GENERATION, MESSAGE_REPLY } from '@/ai_generation/context_builder/prompts';
-
+import { builder } from '@/ai_generation/context_builder';
+import { characterDetailsProvider, messageHistoryProvider, providedCharacterProvider } from '@/ai_generation/context_builder/providers';
+import { tagsProvider } from './context_builder/providers/tags';
+import { database } from 'echoes-shared';
 /**
  * Generates a post for a specific character
  * @param characterId The ID of the character to generate a post for
@@ -14,10 +17,15 @@ export const generatePostForCharacter = async (characterId: string) => {
     try {
         // Generate post content
         const model = "gemini-2.0-flash";
+        const contextBuilder = builder(POST_GENERATION, {
+            endPromptString: "**OUTPUT**"
+        });
+        contextBuilder.addProvider(characterDetailsProvider(characterId));
+
         const postContent = await generateResponse(
-            await POST_GENERATION.PROMPT(characterId),
+            await contextBuilder.prompt(),
             model,
-            POST_GENERATION.SYSTEM,
+            await contextBuilder.system()
         );
 
         // Create post in database
@@ -151,12 +159,16 @@ export const generateCharacterFromTags = async (tags: string): Promise<Generated
     }
 
     const model = "gemini-2.0-flash";
+    const contextBuilder = builder(CHARACTER_GENERATION, {
+        endPromptString: "**OUTPUT**"
+    });
+    contextBuilder.addProvider(tagsProvider(tags));
 
     // Generate the response
     const generatedContent = await generateResponse(
-        CHARACTER_GENERATION.PROMPT(tags),
+        await contextBuilder.prompt(),
         model,
-        CHARACTER_GENERATION.SYSTEM,
+        await contextBuilder.system()
     );
 
     // Parse the generated content into our Character type
@@ -170,12 +182,16 @@ export const generateCharacterFromTags = async (tags: string): Promise<Generated
  */
 export const generateAvatarForCharacter = async (character: GeneratedCharacter) => {
     const model = "gemini-2.0-flash";
+    const contextBuilder = builder(IMAGE_GENERATION, {
+        endPromptString: "**OUTPUT**"
+    });
+    contextBuilder.addProvider(providedCharacterProvider(character));
 
     // Generate image prompt using text generation
     const imgGenPrompt = await generateResponse(
-        IMAGE_GENERATION.PROMPT([character], "Social media avatar. Should include the character's appearance."),
+        await contextBuilder.prompt(),
         model,
-        IMAGE_GENERATION.SYSTEM,
+        await contextBuilder.system()
     );
 
     // Use the generated prompt to create an image with Civitai and upload to Supabase
@@ -198,12 +214,16 @@ export const generateAvatarForCharacter = async (character: GeneratedCharacter) 
  */
 export const generateBannerForCharacter = async (character: GeneratedCharacter) => {
     const model = "gemini-2.0-flash";
+    const contextBuilder = builder(IMAGE_GENERATION, {
+        endPromptString: "**OUTPUT**"
+    });
+    contextBuilder.addProvider(providedCharacterProvider(character));
 
     // Generate image prompt using text generation
     const imgGenPrompt = await generateResponse(
-        IMAGE_GENERATION.PROMPT([character], "Banner image for social media. Does not have to include the character, but can if it makes sense."),
+        await contextBuilder.prompt(),
         model,
-        IMAGE_GENERATION.SYSTEM,
+        await contextBuilder.system()
     );
 
     // Use the generated prompt to create an image with specific dimensions
@@ -228,18 +248,25 @@ export const generateBannerForCharacter = async (character: GeneratedCharacter) 
  */
 export const generateMessageResponse = async (threadId: string): Promise<string | null> => {
     try {
-        // Build the prompt
-        const { prompt, error } = await MESSAGE_REPLY.PROMPT(threadId);
-        if (error || !prompt) {
-            console.error('Error generating message response:', error);
+
+        const { thread, error: threadError } = await database.getThread(threadId, supabase);
+        if (threadError || !thread) {
+            console.error('Error fetching thread:', threadError);
             return null;
         }
 
+
+        // Build the prompt
+        const contextBuilder = builder(MESSAGE_REPLY);
+        contextBuilder.addProvider(characterDetailsProvider(thread.character_id));
+        contextBuilder.addProvider(messageHistoryProvider(threadId));
+
+
         // Generate the response
         const generatedResponse = await generateResponse(
-            prompt,
+            await contextBuilder.prompt(),
             "gemini-2.0-flash",
-            MESSAGE_REPLY.SYSTEM
+            await contextBuilder.system()
         );
 
         return generatedResponse;
@@ -256,11 +283,15 @@ export const generateMessageResponse = async (threadId: string): Promise<string 
  */
 export const generateCharacterAttributesForCharacter = async (character: GeneratedCharacter): Promise<CharacterAttributes> => {
     const model = "gemini-2.0-flash";
+    const contextBuilder = builder(CHARACTER_ATTRIBUTES, {
+        endPromptString: "**OUTPUT**"
+    });
+    contextBuilder.addProvider(providedCharacterProvider(character));
 
     const generatedContent = await generateResponse(
-        CHARACTER_ATTRIBUTES.PROMPT(character),
+        await contextBuilder.prompt(),
         model,
-        CHARACTER_ATTRIBUTES.SYSTEM
+        await contextBuilder.system()
     );
 
     return parseGeneratedAttributes(generatedContent);

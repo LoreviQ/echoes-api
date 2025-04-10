@@ -1,7 +1,7 @@
 import supabase from '@/config/supabase';
 import { wrapInCodeBlock } from '@/utils/string';
 import { Provider } from '@/ai_generation/context_builder';
-import { database } from 'echoes-shared';
+import { database, GeneratedCharacter } from 'echoes-shared';
 
 /**
  * Fetches character details from the database and converts them to a JSON string.
@@ -21,6 +21,21 @@ export function characterDetailsProvider(character_id: string): Provider {
             }
 
             // Convert the character data to a string and wrap in code block
+            return wrapInCodeBlock(JSON.stringify(character, null, 2));
+        }
+    };
+}
+
+/**
+ * Provider for a provided character instead of fetching from the database.
+ * @param character - The character to use.
+ * @returns A Provider object that can be added to the ContextBuilder.
+ */
+export function providedCharacterProvider(character: GeneratedCharacter): Provider {
+    return {
+        title: 'Character Details',
+        type: 'prompt',
+        execute: async () => {
             return wrapInCodeBlock(JSON.stringify(character, null, 2));
         }
     };
